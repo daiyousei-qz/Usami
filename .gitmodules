@@ -1,0 +1,3 @@
+[submodule "external/QuickImGui"]
+	path = external/QuickImGui
+	url = https://github.com/edsDev/QuickImGui
