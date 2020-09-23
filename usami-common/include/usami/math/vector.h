@@ -3,6 +3,7 @@
 #include <concepts>
 #include <numeric>
 #include <type_traits>
+#include <exception>
 #include <cstdlib>
 #include <cmath>
 #include <smmintrin.h>
@@ -11,7 +12,7 @@ namespace usami
 {
     namespace detail
     {
-        float ExtractLowerFloat(__m128 m)
+        inline float ExtractLowerFloat(__m128 m)
         {
             float result;
             _mm_store_ss(&result, m);
@@ -590,7 +591,7 @@ namespace usami
     {
         static_assert(N > 0);
 
-        using FloatType = Float;
+        using ElementType = Float;
 
         static constexpr size_t VecSize = N;
 
@@ -684,13 +685,22 @@ namespace usami
         {
             return data.Max(other.data);
         }
-        Vec Clamp(float min, float max) const noexcept
+        Vec Clamp(Vec min, Vec max) const noexcept
         {
             return Max(min).Min(max);
         }
         Vec Abs() const noexcept
         {
             return data.Abs();
+        }
+        Vec Pow(int x) const noexcept
+        {
+            Vec ans = *this;
+            for (int i = 0; i < N; ++i)
+            {
+                ans[i] = std::pow(ans[i], x);
+            }
+            return ans;
         }
         Vec Pow(float x) const noexcept
         {
@@ -699,6 +709,61 @@ namespace usami
             {
                 ans[i] = std::pow(ans[i], x);
             }
+            return ans;
+        }
+        Vec Sin() const noexcept
+        {
+            Vec ans = *this;
+            for (int i = 0; i < N; ++i)
+            {
+                ans[i] = std::sin(ans[i]);
+            }
+            return ans;
+        }
+        Vec Cos() const noexcept
+        {
+            Vec ans = *this;
+            for (int i = 0; i < N; ++i)
+            {
+                ans[i] = std::cos(ans[i]);
+            }
+            return ans;
+        }
+        Vec Tan() const noexcept
+        {
+            Vec ans = *this;
+            for (int i = 0; i < N; ++i)
+            {
+                ans[i] = std::tan(ans[i]);
+            }
+            return ans;
+        }
+        Vec Log() const noexcept
+        {
+            Vec ans = *this;
+            for (int i = 0; i < N; ++i)
+            {
+                ans[i] = std::log(ans[i]);
+            }
+            return ans;
+        }
+        Vec Log2() const noexcept
+        {
+            Vec ans = *this;
+            for (int i = 0; i < N; ++i)
+            {
+                ans[i] = std::log2(ans[i]);
+            }
+            return ans;
+        }
+        Vec Log10() const noexcept
+        {
+            Vec ans = *this;
+            for (int i = 0; i < N; ++i)
+            {
+                ans[i] = std::log10(ans[i]);
+            }
+            return ans;
         }
         Vec Floor() const noexcept
         {
@@ -816,9 +881,6 @@ namespace usami
     struct IsVecType<Vec<T, N>> : public std::true_type
     {
     };
-
-    template <typename T>
-    concept VecType = IsVecType<T>::value;
 
     using Vec2f = Vec<float, 2>;
     using Vec3f = Vec<float, 3>;

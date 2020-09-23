@@ -35,10 +35,10 @@ namespace usami
 #ifdef USAMI_DEBUG_MODE
 #define USAMI_ASSERT(CONDITION)                                                                    \
     static_cast<void>(!!(CONDITION) ||                                                             \
-                      (::USAMI::Throw(USAMI_ERROR_MESSAGE("ASSERT", #CONDITION)), 0))
+                      (::usami::Throw(USAMI_ERROR_MESSAGE("ASSERT", #CONDITION)), 0))
 
 #define USAMI_CHECK(CONDITION)                                                                     \
-    static_cast<void>(!!(CONDITION) || (::USAMI::Warn(USAMI_ERROR_MESSAGE("CHECK", #CONDITION)), 0))
+    static_cast<void>(!!(CONDITION) || (::usami::Warn(USAMI_ERROR_MESSAGE("CHECK", #CONDITION)), 0))
 #else
 #define USAMI_ASSERT(CONDITION)
 #define USAMI_CHECK(CONDITION)
@@ -46,6 +46,6 @@ namespace usami
 
 #define USAMI_REQUIRE(CONDITION)                                                                   \
     static_cast<void>(!!(CONDITION) ||                                                             \
-                      (::USAMI::Throw(USAMI_ERROR_MESSAGE("REQUIRE", #CONDITION)), 0))
+                      (::usami::Throw(USAMI_ERROR_MESSAGE("REQUIRE", #CONDITION)), 0))
 
-#define USAMI_NO_IMPL() (::USAMI::Throw("no impl"))
+#define USAMI_NO_IMPL() (::usami::Throw("no impl"))

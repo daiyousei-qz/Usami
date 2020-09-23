@@ -49,28 +49,28 @@ namespace usami
     class Matrix3
     {
     private:
-        using VecType      = Vec3f;
-        using RowArrayType = std::array<float, 3>;
+        using VectorType = Vec3f;
 
-        std::array<RowArrayType, 3> data = {};
+        std::array<VectorType, 3> data;
 
     public:
-        constexpr Matrix3()
+        Matrix3()
         {
         }
-        constexpr Matrix3(const float* p)
+        Matrix3(const float* p)
             : data{ToArray<float, 3>(p), ToArray<float, 3>(p + 3), ToArray<float, 3>(p + 6)}
         {
         }
-        constexpr Matrix3(std::initializer_list<float> ilist) : Matrix3(ilist.begin())
+        Matrix3(std::initializer_list<float> ilist) : Matrix3(ilist.begin())
         {
+            USAMI_ASSERT(ilist.size() == 9);
         }
 
-        constexpr RowArrayType& operator[](size_t index) noexcept
+        VectorType& operator[](size_t index) noexcept
         {
             return data[index];
         }
-        constexpr const RowArrayType& operator[](size_t index) const noexcept
+        const VectorType& operator[](size_t index) const noexcept
         {
             return data[index];
         }
@@ -84,9 +84,7 @@ namespace usami
             {
                 for (int j = 0; j < 3; ++j)
                 {
-                    VecType a    = data[i];
-                    VecType b    = x.data[j];
-                    m[i * 3 + j] = a.Dot(b);
+                    m[i * 3 + j] = data[i].Dot(x.data[j]);
                 }
             }
 
@@ -98,27 +96,27 @@ namespace usami
             return other * (*this);
         }
 
-        VecType Apply(VecType v) const noexcept
+        VectorType Apply(VectorType v) const noexcept
         {
             return {v.Dot(data[0]), v.Dot(data[1]), v.Dot(data[2])};
         }
 
-        constexpr Matrix3 Transpose() const noexcept
+        Matrix3 Transpose() const noexcept
         {
             // clang-format off
-        return Matrix3{
-            data[0][0], data[1][0], data[2][0],
-            data[0][1], data[1][1], data[2][1],
-            data[0][2], data[1][2], data[2][2],
-        };
+            return Matrix3{
+                data[0][0], data[1][0], data[2][0],
+                data[0][1], data[1][1], data[2][1],
+                data[0][2], data[1][2], data[2][2],
+            };
             // clang-format on
         }
 
         Matrix3 Inverse() const noexcept
         {
-            auto [a, b, c] = data[0];
-            auto [d, e, f] = data[1];
-            auto [g, h, l] = data[2];
+            auto [a, b, c] = data[0].Array();
+            auto [d, e, f] = data[1].Array();
+            auto [g, h, l] = data[2].Array();
 
             float det = a * e * l + b * f * g + c * d * h - a * f * h - b * d * l - c * e * g;
             USAMI_ASSERT(det != 0);
@@ -139,54 +137,54 @@ namespace usami
         }
 
     public:
-        static constexpr Matrix3 Zero() noexcept
+        static Matrix3 Zero() noexcept
         {
             // clang-format off
-        return Matrix3{
-            0.f, 0.f, 0.f,
-            0.f, 0.f, 0.f,
-            0.f, 0.f, 0.f,
-        };
+            return Matrix3{
+                0.f, 0.f, 0.f,
+                0.f, 0.f, 0.f,
+                0.f, 0.f, 0.f,
+            };
             // clang-format on
         }
-        static constexpr Matrix3 Identity() noexcept
+        static Matrix3 Identity() noexcept
         {
             // clang-format off
-        return Matrix3{
-            1.f, 0.f, 0.f,
-            0.f, 1.f, 0.f,
-            0.f, 0.f, 1.f,
-        };
+            return Matrix3{
+                1.f, 0.f, 0.f,
+                0.f, 1.f, 0.f,
+                0.f, 0.f, 1.f,
+            };
             // clang-format on
         }
-        static constexpr Matrix3 Scale2D(float k) noexcept
+        static Matrix3 Scale2D(float k) noexcept
         {
             // clang-format off
-        return Matrix3{
-            k  , 0.f, 0.f,
-            0.f, k  , 0.f,
-            0.f, 0.f, 1.f,
-        };
+            return Matrix3{
+                k  , 0.f, 0.f,
+                0.f, k  , 0.f,
+                0.f, 0.f, 1.f,
+            };
             // clang-format on
         }
-        static constexpr Matrix3 Scale2D(float kx, float ky) noexcept
+        static Matrix3 Scale2D(float kx, float ky) noexcept
         {
             // clang-format off
-        return Matrix3{
-            kx , 0.f, 0.f,
-            0.f, ky , 0.f,
-            0.f, 0.f, 1.f,
-        };
+            return Matrix3{
+                kx , 0.f, 0.f,
+                0.f, ky , 0.f,
+                0.f, 0.f, 1.f,
+            };
             // clang-format on
         }
-        static constexpr Matrix3 Translate2D(Vec2f v) noexcept
+        static Matrix3 Translate2D(Vec2f v) noexcept
         {
             // clang-format off
-        return Matrix3{
-            1.f, 0.f, v.X(),
-            0.f, 1.f, v.Y(),
-            0.f, 0.f, 1.f  ,
-        };
+            return Matrix3{
+                1.f, 0.f, v.X(),
+                0.f, 1.f, v.Y(),
+                0.f, 0.f, 1.f  ,
+            };
             // clang-format on
         }
         static Matrix3 Rotate2D(Vec2f pivot, float theta) noexcept
@@ -196,21 +194,21 @@ namespace usami
             float s     = std::sqrt(1 - c * c);
 
             // clang-format off
-        return Matrix3{
-            c  , -s , 0.f,
-            s  , c  , 0.f,
-            0.f, 0.f, 1.f,
-        };
+            return Matrix3{
+                c  , -s , 0.f,
+                s  , c  , 0.f,
+                0.f, 0.f, 1.f,
+            };
             // clang-format on
         }
         static Matrix3 Projection2D(Vec2f vx, Vec2f vy, Vec2f vp) noexcept
         {
             // clang-format off
-        Matrix3 linear_projection = Matrix3{
-            vx.X(), vy.X(), 0.f,
-            vx.Y(), vy.Y(), 0.f,
-            0.f   , 0.f   , 1.f,
-        };
+            Matrix3 linear_projection = Matrix3{
+                vx.X(), vy.X(), 0.f,
+                vx.Y(), vy.Y(), 0.f,
+                0.f   , 0.f   , 1.f,
+            };
             // clang-format on
 
             return Matrix3::Translate2D(-vp).Then(linear_projection.Inverse());
@@ -220,29 +218,29 @@ namespace usami
     class Matrix4
     {
     private:
-        using VecType      = Vec4f;
-        using RowArrayType = std::array<float, 4>;
+        using VectorType = Vec4f;
 
-        std::array<RowArrayType, 4> data = {};
+        std::array<VectorType, 4> data;
 
     public:
-        constexpr Matrix4()
+        Matrix4()
         {
         }
-        constexpr Matrix4(const float* p)
+        Matrix4(const float* p)
             : data{ToArray<float, 4>(p), ToArray<float, 4>(p + 4), ToArray<float, 4>(p + 8),
                    ToArray<float, 4>(p + 12)}
         {
         }
-        constexpr Matrix4(std::initializer_list<float> ilist) : Matrix4(ilist.begin())
+        Matrix4(std::initializer_list<float> ilist) : Matrix4(ilist.begin())
         {
+            USAMI_ASSERT(ilist.size() == 16);
         }
 
-        constexpr RowArrayType& operator[](size_t index) noexcept
+        VectorType& operator[](size_t index) noexcept
         {
             return data[index];
         }
-        constexpr const RowArrayType& operator[](size_t index) const noexcept
+        const VectorType& operator[](size_t index) const noexcept
         {
             return data[index];
         }
@@ -256,9 +254,7 @@ namespace usami
             {
                 for (int j = 0; j < 4; ++j)
                 {
-                    VecType a    = data[i];
-                    VecType b    = x.data[j];
-                    m[i * 4 + j] = a.Dot(b);
+                    m[i * 4 + j] = data[i].Dot(x.data[j]);
                 }
             }
 
@@ -270,7 +266,7 @@ namespace usami
             return other * (*this);
         }
 
-        VecType Apply(VecType v) const noexcept
+        VectorType Apply(VectorType v) const noexcept
         {
             return {v.Dot(data[0]), v.Dot(data[1]), v.Dot(data[2]), v.Dot(data[3])};
         }
@@ -283,75 +279,75 @@ namespace usami
             return DowngradeVec(Apply(UpgradeVec(v, 0.f)));
         }
 
-        constexpr Matrix4 Transpose() const noexcept
+        Matrix4 Transpose() const noexcept
         {
             // clang-format off
-        return Matrix4{
-            data[0][0], data[1][0], data[2][0], data[3][0],
-            data[0][1], data[1][1], data[2][1], data[3][1],
-            data[0][2], data[1][2], data[2][2], data[3][2],
-            data[0][3], data[1][3], data[2][3], data[3][3],
-        };
+            return Matrix4{
+                data[0][0], data[1][0], data[2][0], data[3][0],
+                data[0][1], data[1][1], data[2][1], data[3][1],
+                data[0][2], data[1][2], data[2][2], data[3][2],
+                data[0][3], data[1][3], data[2][3], data[3][3],
+            };
             // clang-format on
         }
         Matrix4 Inverse() const noexcept
         {
-            auto [a, b, c, d] = data[0];
-            auto [e, f, g, h] = data[1];
-            auto [i, j, k, l] = data[2];
-            auto [m, n, o, p] = data[3];
+            auto [a, b, c, d] = data[0].Array();
+            auto [e, f, g, h] = data[1].Array();
+            auto [i, j, k, l] = data[2].Array();
+            auto [m, n, o, p] = data[3].Array();
 
             float det;
             float inv[16];
 
             // clang-format off
-        inv[0] = f * k * p - f * l * o - j * g * p +
-                 j * h * o + n * g * l - n * h * k;
+            inv[0] = f * k * p - f * l * o - j * g * p +
+                    j * h * o + n * g * l - n * h * k;
 
-        inv[4] = -e * k * p + e * l * o + i * g * p -
-                 i * h * o - m * g * l + m * h * k;
+            inv[4] = -e * k * p + e * l * o + i * g * p -
+                    i * h * o - m * g * l + m * h * k;
 
-        inv[8] = e * j * p - e * l * n - i * f * p +
-                 i * h * n + m * f * l - m * h * j;
+            inv[8] = e * j * p - e * l * n - i * f * p +
+                    i * h * n + m * f * l - m * h * j;
 
-        inv[12] = -e * j * o + e * k * n + i * f * o -
-                  i * g * n - m * f * k + m * g * j;
+            inv[12] = -e * j * o + e * k * n + i * f * o -
+                    i * g * n - m * f * k + m * g * j;
 
-        inv[1] = -b * k * p + b * l * o + j * c * p -
-                 j * d * o - n * c * l + n * d * k;
+            inv[1] = -b * k * p + b * l * o + j * c * p -
+                    j * d * o - n * c * l + n * d * k;
 
-        inv[5] = a * k * p - a * l * o - i * c * p +
-                 i * d * o + m * c * l - m * d * k;
+            inv[5] = a * k * p - a * l * o - i * c * p +
+                    i * d * o + m * c * l - m * d * k;
 
-        inv[9] = -a * j * p + a * l * n + i * b * p -
-                 i * d * n - m * b * l + m * d * j;
+            inv[9] = -a * j * p + a * l * n + i * b * p -
+                    i * d * n - m * b * l + m * d * j;
 
-        inv[13] = a * j * o - a * k * n - i * b * o +
-                  i * c * n + m * b * k - m * c * j;
+            inv[13] = a * j * o - a * k * n - i * b * o +
+                    i * c * n + m * b * k - m * c * j;
 
-        inv[2] = b * g * p - b * h * o - f * c * p +
-                 f * d * o + n * c * h - n * d * g;
+            inv[2] = b * g * p - b * h * o - f * c * p +
+                    f * d * o + n * c * h - n * d * g;
 
-        inv[6] = -a * g * p + a * h * o + e * c * p -
-                 e * d * o - m * c * h + m * d * g;
+            inv[6] = -a * g * p + a * h * o + e * c * p -
+                    e * d * o - m * c * h + m * d * g;
 
-        inv[10] = a * f * p - a * h * n - e * b * p +
-                  e * d * n + m * b * h - m * d * f;
+            inv[10] = a * f * p - a * h * n - e * b * p +
+                    e * d * n + m * b * h - m * d * f;
 
-        inv[14] = -a * f * o + a * g * n + e * b * o -
-                  e * c * n - m * b * g + m * c * f;
+            inv[14] = -a * f * o + a * g * n + e * b * o -
+                    e * c * n - m * b * g + m * c * f;
 
-        inv[3] = -b * g * l + b * h * k + f * c * l -
-                 f * d * k - j * c * h + j * d * g;
+            inv[3] = -b * g * l + b * h * k + f * c * l -
+                    f * d * k - j * c * h + j * d * g;
 
-        inv[7] = a * g * l - a * h * k - e * c * l +
-                 e * d * k + i * c * h - i * d * g;
+            inv[7] = a * g * l - a * h * k - e * c * l +
+                    e * d * k + i * c * h - i * d * g;
 
-        inv[11] = -a * f * l + a * h * j + e * b * l -
-                  e * d * j - i * b * h + i * d * f;
+            inv[11] = -a * f * l + a * h * j + e * b * l -
+                    e * d * j - i * b * h + i * d * f;
 
-        inv[15] = a * f * k - a * g * j - e * b * k +
-                  e * c * j + i * b * g - i * c * f;
+            inv[15] = a * f * k - a * g * j - e * b * k +
+                    e * c * j + i * b * g - i * c * f;
             // clang-format on
 
             det = a * inv[0] + b * inv[4] + c * inv[8] + d * inv[12];
@@ -367,59 +363,59 @@ namespace usami
         }
 
     public:
-        static constexpr Matrix4 Zero() noexcept
+        static Matrix4 Zero() noexcept
         {
             // clang-format off
-        return Matrix4{
-            0.f, 0.f, 0.f, 0.f,
-            0.f, 0.f, 0.f, 0.f,
-            0.f, 0.f, 0.f, 0.f,
-            0.f, 0.f, 0.f, 0.f,
-        };
+            return Matrix4{
+                0.f, 0.f, 0.f, 0.f,
+                0.f, 0.f, 0.f, 0.f,
+                0.f, 0.f, 0.f, 0.f,
+                0.f, 0.f, 0.f, 0.f,
+            };
             // clang-format on
         }
-        static constexpr Matrix4 Identity() noexcept
+        static Matrix4 Identity() noexcept
         {
             // clang-format off
-        return Matrix4{
-            1.f, 0.f, 0.f, 0.f,
-            0.f, 1.f, 0.f, 0.f,
-            0.f, 0.f, 1.f, 0.f,
-            0.f, 0.f, 0.f, 1.f,
-        };
+            return Matrix4{
+                1.f, 0.f, 0.f, 0.f,
+                0.f, 1.f, 0.f, 0.f,
+                0.f, 0.f, 1.f, 0.f,
+                0.f, 0.f, 0.f, 1.f,
+            };
             // clang-format on
         }
-        static constexpr Matrix4 Scale(float k) noexcept
+        static Matrix4 Scale(float k) noexcept
         {
             // clang-format off
-        return Matrix4{
-            k  , 0.f, 0.f, 0.f,
-            0.f, k  , 0.f, 0.f,
-            0.f, 0.f, k  , 0.f,
-            0.f, 0.f, 0.f, 1.f,
-        };
+            return Matrix4{
+                k  , 0.f, 0.f, 0.f,
+                0.f, k  , 0.f, 0.f,
+                0.f, 0.f, k  , 0.f,
+                0.f, 0.f, 0.f, 1.f,
+            };
             // clang-format on
         }
-        static constexpr Matrix4 Scale(float kx, float ky, float kz) noexcept
+        static Matrix4 Scale(float kx, float ky, float kz) noexcept
         {
             // clang-format off
-        return Matrix4{
-            kx , 0.f, 0.f, 0.f,
-            0.f, ky , 0.f, 0.f,
-            0.f, 0.f, kz , 0.f,
-            0.f, 0.f, 0.f, 1.f,
-        };
+            return Matrix4{
+                kx , 0.f, 0.f, 0.f,
+                0.f, ky , 0.f, 0.f,
+                0.f, 0.f, kz , 0.f,
+                0.f, 0.f, 0.f, 1.f,
+            };
             // clang-format on
         }
-        static constexpr Matrix4 Translate(Vec3f v) noexcept
+        static Matrix4 Translate(Vec3f v) noexcept
         {
             // clang-format off
-        return Matrix4{
-            1.f, 0.f, 0.f, v.X(),
-            0.f, 1.f, 0.f, v.Y(),
-            0.f, 0.f, 1.f, v.Z(),
-            0.f, 0.f, 0.f, 1.f,
-        };
+            return Matrix4{
+                1.f, 0.f, 0.f, v.X(),
+                0.f, 1.f, 0.f, v.Y(),
+                0.f, 0.f, 1.f, v.Z(),
+                0.f, 0.f, 0.f, 1.f,
+            };
             // clang-format on
         }
         static Matrix4 Rotate(Vec3f pivot, float theta) noexcept
@@ -429,12 +425,12 @@ namespace usami
             float s        = std::sqrt(1 - c * c);
 
             // clang-format off
-        return Matrix4{
-            c+(1-c)*x*x  , (1-c)*x*y-s*z, (1-c)*x*z+s*y, 0,
-            (1-c)*y*x+s*z, c+(1-c)*y*y  , (1-c)*y*z-s*x, 0,
-            (1-c)*z*x-s*y, (1-c)*z*y+s*x, c+(1-c)*z*z  , 0,
-            0            , 0            , 0            , 1,
-        };
+            return Matrix4{
+                c+(1-c)*x*x  , (1-c)*x*y-s*z, (1-c)*x*z+s*y, 0,
+                (1-c)*y*x+s*z, c+(1-c)*y*y  , (1-c)*y*z-s*x, 0,
+                (1-c)*z*x-s*y, (1-c)*z*y+s*x, c+(1-c)*z*z  , 0,
+                0            , 0            , 0            , 1,
+            };
             // clang-format on
         }
         static Matrix4 RotateX(float theta) noexcept
@@ -443,12 +439,12 @@ namespace usami
             float s = std::sqrt(1 - c * c);
 
             // clang-format off
-        return Matrix4{
-            1,  0, 0, 0,
-            0,  c, s, 0,
-            0, -s, c, 0,
-            0,  0, 0, 1,
-        };
+            return Matrix4{
+                1,  0, 0, 0,
+                0,  c, s, 0,
+                0, -s, c, 0,
+                0,  0, 0, 1,
+            };
             // clang-format on
         }
         static Matrix4 RotateY(float theta) noexcept
@@ -457,12 +453,12 @@ namespace usami
             float s = std::sqrt(1 - c * c);
 
             // clang-format off
-        return Matrix4{
-            c, 0, -s, 0,
-            0, 1,  0, 0,
-            s, 0,  c, 0,
-            0, 0,  0, 1,
-        };
+            return Matrix4{
+                c, 0, -s, 0,
+                0, 1,  0, 0,
+                s, 0,  c, 0,
+                0, 0,  0, 1,
+            };
             // clang-format on
         }
         static Matrix4 RotateZ(float theta) noexcept
@@ -471,23 +467,23 @@ namespace usami
             float s = std::sqrt(1 - c * c);
 
             // clang-format off
-        return Matrix4{
-            c, -s, 0, 0,
-            s,  c, 0, 0,
-            0,  0, 1, 0,
-            0,  0, 0, 1,
-        };
+            return Matrix4{
+                c, -s, 0, 0,
+                s,  c, 0, 0,
+                0,  0, 1, 0,
+                0,  0, 0, 1,
+            };
             // clang-format on
         }
         static Matrix4 Projection(Vec3f vx, Vec3f vy, Vec3f vz, Vec3f vp) noexcept
         {
             // clang-format off
-        Matrix4 linear_projection = Matrix4{
-            vx.X(), vy.X(), vz.X(), 0,
-            vx.Y(), vy.Y(), vz.Y(), 0,
-            vx.Z(), vy.Z(), vz.Z(), 0,
-            0     , 0     , 0     , 1,
-        };
+            Matrix4 linear_projection = Matrix4{
+                vx.X(), vy.X(), vz.X(), 0,
+                vx.Y(), vy.Y(), vz.Y(), 0,
+                vx.Z(), vy.Z(), vz.Z(), 0,
+                0     , 0     , 0     , 1,
+            };
             // clang-format on
 
             return Matrix4::Translate(-vp).Then(linear_projection.Inverse());
