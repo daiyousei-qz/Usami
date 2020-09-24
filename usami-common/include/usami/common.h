@@ -10,6 +10,20 @@ namespace usami
     using std::make_shared;
     using std::shared_ptr;
 
+    // common base for heap-allocated no-copy no-move objects
+    class UsamiObject
+    {
+    public:
+        UsamiObject()          = default;
+        virtual ~UsamiObject() = default;
+
+        UsamiObject(const UsamiObject&) = delete;
+        UsamiObject(UsamiObject&&)      = delete;
+
+        UsamiObject& operator=(const UsamiObject&) = delete;
+        UsamiObject& operator=(UsamiObject&&) = delete;
+    };
+
     template <typename TFmt, typename... TArgs>
     [[noreturn]] void Throw(const TFmt& fmt, const TArgs&... args)
     {

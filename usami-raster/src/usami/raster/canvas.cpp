@@ -20,8 +20,8 @@ namespace usami::raster
             return;
         }
 
-        Matrix3 to_st_space = Matrix3::Projection2D({edge_s.X(), edge_s.Y()},
-                                                    {edge_t.X(), edge_t.Y()}, {p0.X(), p0.Y()});
+        Matrix3 to_st_space = Matrix3::ChangeBasis2D({edge_s.X(), edge_s.Y()},
+                                                     {edge_t.X(), edge_t.Y()}, {p0.X(), p0.Y()});
 
         float render_width  = static_cast<float>(width_);
         float render_height = static_cast<float>(height_);

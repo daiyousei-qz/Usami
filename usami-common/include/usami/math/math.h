@@ -1,4 +1,5 @@
 #pragma once
+#include "point.h"
 #include "vector.h"
 #include "matrix.h"
 #include <cmath>
@@ -13,6 +14,11 @@ namespace usami
 
     constexpr float kAreaUnitSphere     = 4.f * kPi;
     constexpr float kAreaUnitHemisphere = 2.f * kPi;
+
+    inline constexpr float AreaUnitCone(float cos_theta) noexcept
+    {
+        return 2.f * kPi * (1 - cos_theta);
+    }
 
     template <typename T>
     concept ScalarType = std::integral<T> || std::floating_point<T>;

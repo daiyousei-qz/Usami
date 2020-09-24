@@ -35,6 +35,12 @@ namespace usami
         }
     };
 
+    /**
+     * A SpectrumRGB represents color in linear space that is addable and multipliable.
+     *
+     * It could be either radiance/reflectance/absorption ratio .etc. Although this is only a rename
+     * of type `Vec3f`, use SpectrumRGB to explicitly state that a color related value is stored.
+     */
     using SpectrumRGB = Vec3f;
 
     inline bool InvalidSpectrum(const SpectrumRGB& s) noexcept
@@ -166,7 +172,7 @@ namespace usami
     // make sure to perform tune map for a larger dynamic range
     inline ColorRGBA SpectrumRGBToColor_Linear(Vec3f color) noexcept
     {
-        Vec3f cc = (color * 255.f).Clamp(0, 255);
+        Vec3f cc = (color * 255.f).Clamp(0.f, 255.f);
         return ColorRGBA{static_cast<uint8_t>(cc[0]), static_cast<uint8_t>(cc[1]),
                          static_cast<uint8_t>(cc[2])};
     }
@@ -216,7 +222,7 @@ namespace usami
     // make sure to perform tune map for a larger dynamic range
     inline ColorRGBA SpectrumRGBToColor_sRGB(Vec3f color) noexcept
     {
-        Vec3f cc = (Linear2sRGB(color) * 255.f).Clamp(0, 255);
+        Vec3f cc = (Linear2sRGB(color) * 255.f).Clamp(0.f, 255.f);
         return ColorRGBA{static_cast<uint8_t>(cc[0]), static_cast<uint8_t>(cc[1]),
                          static_cast<uint8_t>(cc[2])};
     }

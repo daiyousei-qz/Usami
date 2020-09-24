@@ -201,7 +201,7 @@ namespace usami
             };
             // clang-format on
         }
-        static Matrix3 Projection2D(Vec2f vx, Vec2f vy, Vec2f vp) noexcept
+        static Matrix3 ChangeBasis2D(Vec2f vx, Vec2f vy, Vec2f vp) noexcept
         {
             // clang-format off
             Matrix3 linear_projection = Matrix3{
@@ -385,7 +385,7 @@ namespace usami
             };
             // clang-format on
         }
-        static Matrix4 Scale(float k) noexcept
+        static Matrix4 Scale3D(float k) noexcept
         {
             // clang-format off
             return Matrix4{
@@ -396,7 +396,7 @@ namespace usami
             };
             // clang-format on
         }
-        static Matrix4 Scale(float kx, float ky, float kz) noexcept
+        static Matrix4 Scale3D(float kx, float ky, float kz) noexcept
         {
             // clang-format off
             return Matrix4{
@@ -407,7 +407,7 @@ namespace usami
             };
             // clang-format on
         }
-        static Matrix4 Translate(Vec3f v) noexcept
+        static Matrix4 Translate3D(Vec3f v) noexcept
         {
             // clang-format off
             return Matrix4{
@@ -418,7 +418,7 @@ namespace usami
             };
             // clang-format on
         }
-        static Matrix4 Rotate(Vec3f pivot, float theta) noexcept
+        static Matrix4 Rotate3D(Vec3f pivot, float theta) noexcept
         {
             auto [x, y, z] = pivot.Normalize().Array();
             float c        = std::cos(theta);
@@ -433,7 +433,7 @@ namespace usami
             };
             // clang-format on
         }
-        static Matrix4 RotateX(float theta) noexcept
+        static Matrix4 RotateX3D(float theta) noexcept
         {
             float c = std::cos(theta);
             float s = std::sqrt(1 - c * c);
@@ -447,7 +447,7 @@ namespace usami
             };
             // clang-format on
         }
-        static Matrix4 RotateY(float theta) noexcept
+        static Matrix4 RotateY3D(float theta) noexcept
         {
             float c = std::cos(theta);
             float s = std::sqrt(1 - c * c);
@@ -461,7 +461,7 @@ namespace usami
             };
             // clang-format on
         }
-        static Matrix4 RotateZ(float theta) noexcept
+        static Matrix4 RotateZ3D(float theta) noexcept
         {
             float c = std::cos(theta);
             float s = std::sqrt(1 - c * c);
@@ -475,7 +475,7 @@ namespace usami
             };
             // clang-format on
         }
-        static Matrix4 Projection(Vec3f vx, Vec3f vy, Vec3f vz, Vec3f vp) noexcept
+        static Matrix4 ChangeBasis3D(Vec3f vx, Vec3f vy, Vec3f vz, Vec3f vp) noexcept
         {
             // clang-format off
             Matrix4 linear_projection = Matrix4{
@@ -486,14 +486,14 @@ namespace usami
             };
             // clang-format on
 
-            return Matrix4::Translate(-vp).Then(linear_projection.Inverse());
+            return Matrix4::Translate3D(-vp).Then(linear_projection.Inverse());
         }
-        static Matrix4 Projection(Vec3f vtheta, Vec3f vp) noexcept
+        static Matrix4 ChangeBasis3D(Vec3f vtheta, Vec3f vp) noexcept
         {
-            return Matrix4::Translate(-vp)
-                .Then(Matrix4::RotateZ(vtheta.Z()))
-                .Then(Matrix4::RotateY(vtheta.Y()))
-                .Then(Matrix4::RotateX(vtheta.X()));
+            return Matrix4::Translate3D(-vp)
+                .Then(Matrix4::RotateZ3D(vtheta.Z()))
+                .Then(Matrix4::RotateY3D(vtheta.Y()))
+                .Then(Matrix4::RotateX3D(vtheta.X()));
         }
     };
 } // namespace usami

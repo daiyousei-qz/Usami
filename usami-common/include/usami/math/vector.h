@@ -608,6 +608,9 @@ namespace usami
         constexpr Vec(std::array<Float, N> xs) : data(xs)
         {
         }
+        constexpr Vec(const Float xs[N]) : data(xs)
+        {
+        }
         constexpr Vec(std::initializer_list<Float> ilist) : data(ilist)
         {
             if (ilist.size() != N)
@@ -634,9 +637,13 @@ namespace usami
             return data.array;
         }
 
+        float LengthSq() const noexcept
+        {
+            return data.Dot(data);
+        }
         float Length() const noexcept
         {
-            return std::sqrt(data.Dot(data));
+            return std::sqrt(LengthSq());
         }
 
 #define DEFINE_FORWARDED_ITER_FUNCTION(NAME)                                                       \

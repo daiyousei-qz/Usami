@@ -47,11 +47,11 @@ void LoadScene()
     model = LoadModel("d:/demo/scene/bunny2/bunny2.obj");
     // model = LoadModel("d:/demo/scene/cube/cube.obj");
     scene = make_shared<SceneGraph>(make_shared<SceneNode>(
-        nullptr, Matrix4::Rotate(RotatePivot, RotateTheta) * Matrix4::Scale(Scale)));
+        nullptr, Matrix4::Rotate3D(RotatePivot, RotateTheta) * Matrix4::Scale3D(Scale)));
     for (int i = 0; i < model->geometries.size(); ++i)
     {
         scene->Root().AddChild(std::make_shared<SceneNode>(std::make_shared<SceneObject>(model, i),
-                                                           Matrix4::Scale(.003f)));
+                                                           Matrix4::Scale3D(.003f)));
     }
 
     camera.SetPosition({0, 0, -3});
@@ -81,9 +81,9 @@ public:
         theta += RotateTheta * timespan_s;
         t0 = t1;
         rotate_transform =
-            rotate_transform.Then(Matrix4::Rotate(RotatePivot, RotateTheta * timespan_s));
+            rotate_transform.Then(Matrix4::Rotate3D(RotatePivot, RotateTheta * timespan_s));
 
-        scene->Root().SetTransform(rotate_transform * Matrix4::Scale(Scale));
+        scene->Root().SetTransform(rotate_transform * Matrix4::Scale3D(Scale));
         canvas.Clear(1.f);
         raster::Render(canvas, camera, [] { RenderSceneNode(scene->Root()); });
 

@@ -25,6 +25,7 @@ namespace usami
         return reinterpret_cast<const uint8_t*>(p2) - reinterpret_cast<const uint8_t*>(p1);
     }
 
+    // an alignment should always be a power of 2
     inline constexpr size_t RoundToAlign(size_t sz, size_t alignment) noexcept
     {
         size_t kAlignMask = alignment - 1;
