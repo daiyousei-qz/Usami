@@ -276,7 +276,7 @@ namespace usami
         }
         Vec3f ApplyVector(Vec3f v) const noexcept
         {
-            return DowngradeVec(Apply(UpgradeVec(v, 0.f)));
+            return DowngradeVecLinear(Apply(UpgradeVec(v, 0.f)));
         }
 
         Matrix4 Transpose() const noexcept

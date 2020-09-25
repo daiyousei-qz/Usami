@@ -1,5 +1,7 @@
 #pragma once
 #include "fmt/format.h"
+#include <concepts>
+#include <type_traits>
 #include <memory>
 
 namespace usami
@@ -63,3 +65,4 @@ namespace usami
                       (::usami::Throw(USAMI_ERROR_MESSAGE("REQUIRE", #CONDITION)), 0))
 
 #define USAMI_NO_IMPL() (::usami::Throw("no impl"))
+#define USAMI_IMPOSSIBLE() (::usami::Throw("reached an impossible path"))

@@ -1,5 +1,5 @@
 #pragma once
-#include "usami/raster/camera.h"
+#include "usami/camera.h"
 #include "usami/raster/canvas.h"
 #include "usami/raster/context.h"
 #include "usami/raster/scene.h"
@@ -47,12 +47,16 @@ namespace usami::raster
         RenderingContext::Current().PopModelTransform();
     }
 
-    void Render(Canvas& canvas, const Camera& camera, std::function<void()> render)
+    void Render(Canvas& canvas, const CameraSetting& camera, float z_near, float z_far,
+                std::function<void()> render)
     {
-        float res_x = static_cast<float>(canvas.Width());
-        float res_y = static_cast<float>(canvas.Height());
+        int res_x = canvas.Width();
+        int res_y = canvas.Height();
 
-        RenderingContext::Initialize(&canvas, camera.ComputeWorldToScreenTransform(res_x, res_y));
+        Matrix4 world_to_screen = ComputeWorldToScreenTransform(
+            camera, {res_x, res_y}, CameraProjectionType::Perspective, z_near, z_far);
+        
+        RenderingContext::Initialize(&canvas, world_to_screen);
         RenderingContext::Current().SetVertexShader(DefaultVertexShader::Instance());
         RenderingContext::Current().SetFregmentShader(DefaultFregmentShader::Instance());
         render();

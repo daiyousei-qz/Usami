@@ -6,6 +6,30 @@
 
 namespace usami::ray
 {
+    // TODO: make unbiased
+    SpectrumRGB SampleAllDirectLight(RenderingContext& ctx, Sampler& sampler, const Scene& scene,
+                                     const IntersectionInfo& isect, const Vec3f& wo_bsdf,
+                                     const Bsdf& bsdf, const Matrix4& world2local)
+    {
+        SpectrumRGB total_ld = 0.f;
+        for (const Light* light : scene.Lights())
+        {
+            LightSample sample = light->Sample(isect, sampler.Get2D());
+
+            if (sample.TestIllumination() && sample.TestVisibility(scene, isect, ctx.workspace))
+            {
+                Vec3f wi_bsdf = world2local.ApplyVector(sample.IncidentDirection());
+
+                Vec3f incident_radiance = sample.Radiance() * AbsCosTheta(wi_bsdf);
+                Vec3f exitant_radiance  = incident_radiance * bsdf.Eval(wo_bsdf, wi_bsdf);
+
+                total_ld += exitant_radiance / sample.Pdf();
+            }
+        }
+
+        return total_ld;
+    }
+
     SpectrumRGB PathTracingIntegrator::Li(RenderingContext& ctx, Sampler& sampler,
                                           const Scene& scene, const Ray& camera_ray) const
     {
@@ -21,9 +45,10 @@ namespace usami::ray
             IntersectionInfo isect;
             if (!scene.Intersect(ray, ctx.workspace, isect))
             {
-                if (from_camera_or_specular)
+                // as we are not sampling from global light, we should always add this
+                // if (from_camera_or_specular)
                 {
-                    // add skybox
+                    result += contrib * scene.GlobalLight()->Eval(ray);
                 }
 
                 break;
@@ -55,7 +80,8 @@ namespace usami::ray
             // estimate direct light illumination for non-specular bsdf
             if (!is_specular_bsdf)
             {
-                // TODO
+                result += contrib * SampleAllDirectLight(ctx, sampler, scene, isect, wo_bsdf, *bsdf,
+                                                         world2local);
             }
 
             // estimite indirect light illumination

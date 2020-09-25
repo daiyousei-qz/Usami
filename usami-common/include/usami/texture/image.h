@@ -85,7 +85,7 @@ namespace usami
                            Log2(Max(differential_x.Length(), differential_y.Length()));
             level = Clamp<size_t>(level, 0, mipmap_.NumLevels() - 1);
 
-            return mipmap_.SampleNearest(level, tex_coord[0], tex_coord[1]);
+            return mipmap_.SampleNearest(0, tex_coord[0], tex_coord[1]);
         }
     };
 } // namespace usami

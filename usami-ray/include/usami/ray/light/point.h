@@ -13,7 +13,7 @@ namespace usami::ray
         SpectrumRGB intensity_;
 
     public:
-        PointLight(const Vec3f& p, const Vec3f& intensity)
+        PointLight(const Vec3f& p, const SpectrumRGB& intensity)
             : Light(LightType::DeltaPoint), point_(p), intensity_(intensity)
         {
         }

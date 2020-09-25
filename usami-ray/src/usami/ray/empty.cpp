@@ -1,1 +1,0 @@
-#include "usami/ray/light/point.h"

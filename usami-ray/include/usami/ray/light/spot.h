@@ -16,8 +16,8 @@ namespace usami::ray
     public:
         SpotLight(const Vec3f& point, const Vec3f& direction, float theta,
                   const SpectrumRGB& intensity)
-            : point_(point), direction_(direction.Normalize()), cos_theta_(Cos(theta)),
-              intensity_(intensity)
+            : Light(LightType::DeltaPoint), point_(point), direction_(direction.Normalize()),
+              cos_theta_(Cos(theta)), intensity_(intensity)
         {
         }
 

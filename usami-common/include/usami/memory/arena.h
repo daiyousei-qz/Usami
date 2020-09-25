@@ -301,7 +301,7 @@ namespace usami
         Block* big_node_ = nullptr;
     };
 
-    template <typename MemoryProvider, size_t AlignmentSize = alignof(std::max_align_t)>
+    template <typename MemoryProvider, size_t AlignmentSize = 16>
     class BasicArena final : MemoryProvider
     {
     public:

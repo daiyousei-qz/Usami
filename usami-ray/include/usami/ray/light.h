@@ -1,4 +1,5 @@
 #pragma once
+#include "usami/memory/arena.h"
 #include "usami/color.h"
 #include "usami/ray/ray.h"
 
@@ -77,7 +78,13 @@ namespace usami::ray
         {
         }
 
-        bool TestVisibility() const;
+        bool TestIllumination() const
+        {
+            return pdf_ != 0 && radiance_ != Vec3f(0.f);
+        }
+
+        bool TestVisibility(const Scene& scene, const IntersectionInfo& isect_obj,
+                            Workspace& workspace) const;
 
         Ray GenerateTestRay(const Vec3f& p) const noexcept
         {
@@ -89,6 +96,11 @@ namespace usami::ray
             return RayFromTo(p, point_);
         }
 
+        Vec3f IncidentDirection() const noexcept
+        {
+            return wi_;
+        }
+
         Vec3f Point() const noexcept
         {
             return point_;
@@ -97,6 +109,11 @@ namespace usami::ray
         float Pdf() const noexcept
         {
             return pdf_;
+        }
+
+        SpectrumRGB Radiance() const noexcept
+        {
+            return radiance_;
         }
 
         LightType Type() const noexcept

@@ -797,12 +797,12 @@ namespace usami
     // unary op
     //
     template <typename Float, size_t N>
-    inline constexpr Vec<Float, N> operator+(Vec<Float, N> v) noexcept
+    inline constexpr Vec<Float, N> operator+(const Vec<Float, N>& v) noexcept
     {
         return +v.data;
     }
     template <typename Float, size_t N>
-    inline constexpr Vec<Float, N> operator-(Vec<Float, N> v) noexcept
+    inline constexpr Vec<Float, N> operator-(const Vec<Float, N>& v) noexcept
     {
         return -v.data;
     }
@@ -811,7 +811,7 @@ namespace usami
 //
 #define DEFINE_COMPARISON_OP(OP)                                                                   \
     template <typename Float, size_t N>                                                            \
-    inline constexpr bool operator OP(Vec<Float, N> lhs, Vec<Float, N> rhs) noexcept               \
+    inline constexpr bool operator OP(const Vec<Float, N>& lhs, const Vec<Float, N>& rhs) noexcept \
     {                                                                                              \
         return lhs.data OP rhs.data;                                                               \
     }
@@ -828,7 +828,8 @@ namespace usami
 //
 #define DEFINE_ELEMWISE_ASSIGN_OP(OP)                                                              \
     template <typename Float, size_t N>                                                            \
-    inline constexpr Vec<Float, N>& operator OP(Vec<Float, N>& lhs, Vec<Float, N> rhs) noexcept    \
+    inline constexpr Vec<Float, N>& operator OP(Vec<Float, N>& lhs,                                \
+                                                const Vec<Float, N>& rhs) noexcept                 \
     {                                                                                              \
         lhs.data OP rhs.data;                                                                      \
         return lhs;                                                                                \
@@ -851,21 +852,21 @@ namespace usami
 #define MAKE_ASSIGN_OP(OP) OP## =
 #define DEFINE_ELEMWISE_ARITHMETIC_OP(OP)                                                          \
     template <typename Float, size_t N>                                                            \
-    inline constexpr Vec<Float, N> operator OP(Vec<Float, N> lhs, Vec<Float, N> rhs) noexcept      \
+    inline constexpr Vec<Float, N> operator OP(const Vec<Float, N>& lhs, const Vec<Float, N>& rhs) noexcept      \
     {                                                                                              \
         Vec<Float, N> ans = lhs;                                                                   \
         ans MAKE_ASSIGN_OP(OP) rhs;                                                                \
         return ans;                                                                                \
     }                                                                                              \
     template <typename Float, size_t N>                                                            \
-    inline constexpr Vec<Float, N> operator OP(Float lhs, Vec<Float, N> rhs) noexcept              \
+    inline constexpr Vec<Float, N> operator OP(Float lhs, const Vec<Float, N>& rhs) noexcept              \
     {                                                                                              \
         Vec<Float, N> ans = rhs;                                                                   \
         ans MAKE_ASSIGN_OP(OP) Vec<Float, N>(lhs);                                                 \
         return ans;                                                                                \
     }                                                                                              \
     template <typename Float, size_t N>                                                            \
-    inline constexpr Vec<Float, N> operator OP(Vec<Float, N> lhs, Float rhs) noexcept              \
+    inline constexpr Vec<Float, N> operator OP(const Vec<Float, N>& lhs, Float rhs) noexcept              \
     {                                                                                              \
         Vec<Float, N> ans = lhs;                                                                   \
         ans MAKE_ASSIGN_OP(OP) Vec<Float, N>(rhs);                                                 \

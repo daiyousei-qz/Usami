@@ -14,11 +14,9 @@ namespace usami::ray
         Vec3f center;
         float len_x, len_y;
 
-        bool reverse_orientation;
-
     public:
-        constexpr Rect(Vec3f center, float len_x, float len_y, bool reverse_orientation)
-            : center(center), len_x(len_x), len_y(len_y), reverse_orientation(reverse_orientation)
+        constexpr Rect(Vec3f center, float len_x, float len_y)
+            : center(center), len_x(len_x), len_y(len_y)
         {
             USAMI_REQUIRE(len_x > 0 && len_y > 0);
         }
@@ -47,7 +45,7 @@ namespace usami::ray
             }
 
             // test if hit point is in the rectangle
-            Vec3f delta = P - center - 0.5f * Vec3f{len_x, len_y, 0};
+            Vec3f delta = P - center + 0.5f * Vec3f{len_x, len_y, 0};
             if (delta[0] < 0 || delta[0] > len_x || delta[1] < 0 || delta[1] > len_y)
             {
                 return false;

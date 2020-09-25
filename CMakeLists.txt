@@ -3,13 +3,20 @@ cmake_minimum_required(VERSION 3.16)
 project(Usami CXX)
 
 set(CMAKE_CXX_STANDARD 20)
-if (MSVC)
-    add_compile_options(-permissive-)
-endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     message("USAMI_DEBUG_MODE = 1")
+    set(USAMI_DEBUG_MODE ON)
     add_compile_definitions("USAMI_DEBUG_MODE=1")
+endif()
+
+if (MSVC)
+    if (USAMI_DEBUG_MODE)
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
+    else()
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
+    endif()
+    add_compile_options(/permissive- /fp:fast)
 endif()
 
 set(QUICK_IMGUI_BACKEND "GLFW")

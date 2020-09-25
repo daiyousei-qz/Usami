@@ -1,12 +1,12 @@
 #pragma once
 #include "usami/math/math.h"
+#include "usami/camera.h"
 #include <vector>
 #include <functional>
 
 namespace usami::raster
 {
     class Canvas;
-    class Camera;
 
     class VertexShader;
     class FregmentShader;
@@ -52,7 +52,8 @@ namespace usami::raster
             CurrentContextPtr() = nullptr;
         }
 
-        friend void Render(Canvas& canvas, const Camera& camera, std::function<void()> render);
+        friend void Render(Canvas& canvas, const CameraSetting& camera, float z_near, float z_far,
+                           std::function<void()> render);
 
     public:
         static RenderingContext& Current()

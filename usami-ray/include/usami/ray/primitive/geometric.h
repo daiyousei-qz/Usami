@@ -7,10 +7,26 @@ namespace usami::ray
     template <GeometricShape Geometry>
     class GeometricPrimitive : public Primitive
     {
+    private:
+        Geometry geometry_;
+        bool reverse_orientation_;
+
+        shared_ptr<Material> material_    = nullptr;
+        unique_ptr<AreaLight> area_light_ = nullptr;
+
     public:
         GeometricPrimitive(Geometry geometry, bool reverse_orientation = false)
             : geometry_(geometry), reverse_orientation_(reverse_orientation)
         {
+        }
+
+        Material* GetMaterial() const noexcept
+        {
+            return material_.get();
+        }
+        AreaLight* GetAreaLight() const noexcept
+        {
+            return area_light_.get();
         }
 
         float Area() const override
@@ -39,7 +55,8 @@ namespace usami::ray
             return hit;
         }
 
-        void SamplePoint(const Point2f& u, Vec3& p_out, Vec3& n_out, float& pdf_out) const override
+        void SamplePoint(const Point2f& u, Vec3f& p_out, Vec3f& n_out,
+                         float& pdf_out) const override
         {
             geometry_.SamplePoint(u, p_out, n_out, pdf_out);
 
@@ -58,21 +75,5 @@ namespace usami::ray
         {
             area_light_ = make_unique<TLight>(this, std::forward<TArgs>(args)...);
         }
-
-        Material* GetMaterial() const noexcept
-        {
-            return material_.get();
-        }
-        AreaLight* GetAreaLight() const noexcept
-        {
-            return area_light_.get();
-        }
-
-    private:
-        Geometry geometry_;
-        bool reverse_orientation_;
-
-        shared_ptr<Material> material_    = nullptr;
-        unique_ptr<AreaLight> area_light_ = nullptr;
     };
 } // namespace usami::ray

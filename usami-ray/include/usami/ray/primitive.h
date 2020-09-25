@@ -5,21 +5,24 @@
 
 namespace usami::ray
 {
+    // TODO: find a better way to express static interface
     template <typename T>
     concept GeometricShape = requires(T shape)
     {
         {
-            shape.Area()
+            &T::Area
         }
-        ->std::same_as<float>;
+        ->std::same_as<float (T::*)() const noexcept>;
 
         {
-            shape.Intersect(std::declval<Ray>(), 0.f, 0.f, std::declval<IntersectionInfo>())
+            &T::Intersect
         }
-        ->std::same_as<bool>;
+        ->std::same_as<bool (T::*)(const Ray&, float, float, IntersectionInfo&) const noexcept>;
 
-        shape.SamplePoint(std::declval<Point2f>(), std::declval<Vec3f>(), std::declval<Vec3f>(),
-                          std::declval<float>());
+        {
+            &T::SamplePoint
+        }
+        ->std::same_as<void (T::*)(const Point2f&, Vec3f&, Vec3f&, float&) const noexcept>;
     };
 
     class IntersectableEntity : public virtual UsamiObject

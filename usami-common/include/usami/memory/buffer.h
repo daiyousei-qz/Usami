@@ -57,5 +57,14 @@ namespace usami
             USAMI_ASSERT(i < size_);
             return data_[i];
         }
+
+        T& At(size_t x, size_t y, size_t stride) noexcept
+        {
+            return At(y * stride + x);
+        }
+        const T& At(size_t x, size_t y, size_t stride) const noexcept
+        {
+            return At(y * stride + x);
+        }
     };
 } // namespace usami

@@ -26,8 +26,12 @@ namespace usami::ray
         {
             // TODO: reuse this with sphere shape
             // NOTE normal == wi_world
-            float u = 0.5f + atan2(-wi_world.Z(), -wi_world.X()) * kInvTwoPi;
-            float v = 0.5f - asin(-wi_world.Y()) * kInvPi;
+            float u = 1 - atan2(wi_world.Y(), wi_world.X()) * kInvTwoPi;
+            float v = 1 - acos(wi_world.Z()) * kInvPi;
+            if (u < 0)
+            {
+                u += 1;
+            }
 
             return intensity_ * tex_->Eval({u, v}, 0.f, 0.f);
         }
@@ -37,6 +41,7 @@ namespace usami::ray
             return Eval(ray.d);
         }
 
+        // TODO: NOTE we shouldn't only sample lighting from outside the surface here
         LightSample Sample(const IntersectionInfo& isect, const Point2f& u) const override
         {
             Vec3f wi = SampleUniformSphere(u);

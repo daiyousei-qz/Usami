@@ -1,6 +1,7 @@
 #include "usami/math/math.h"
 #include "usami/color.h"
 #include "usami/model.h"
+#include "usami/camera.h"
 #include "usami/raster/render.h"
 #include "quick_imgui.h"
 #include <chrono>
@@ -33,7 +34,9 @@ namespace ImGui
 static constexpr int kCanvasWidth  = 600;
 static constexpr int kCanvasHeight = 600;
 
-Camera camera;
+usami::CameraSetting camera;
+float z_near;
+float z_far;
 
 Vec3f RotatePivot = {0.f, 1.f, 0.f};
 float RotateTheta = 0;
@@ -54,8 +57,9 @@ void LoadScene()
                                                            Matrix4::Scale3D(.003f)));
     }
 
-    camera.SetPosition({0, 0, -3});
-    camera.SetClipRange(1e-2f, 1e2f);
+    camera.position = {0, 0, -3};
+    z_near          = 1e-2f;
+    z_far           = 1e2f;
 }
 
 class MyApp : public Application
@@ -85,7 +89,7 @@ public:
 
         scene->Root().SetTransform(rotate_transform * Matrix4::Scale3D(Scale));
         canvas.Clear(1.f);
-        raster::Render(canvas, camera, [] { RenderSceneNode(scene->Root()); });
+        raster::Render(canvas, camera, z_near, z_far, [] { RenderSceneNode(scene->Root()); });
 
         auto pcanvas = canvas.Buffer().Data();
         auto pimg    = img_data.Data();
