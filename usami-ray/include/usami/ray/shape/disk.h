@@ -15,7 +15,7 @@ namespace usami::ray
         float radius;
 
     public:
-        constexpr Disk(Vec3f center, float radius) : center(center), radius(radius)
+        Disk(Vec3f center, float radius) : center(center), radius(radius)
         {
             USAMI_REQUIRE(radius > 0);
         }
@@ -29,13 +29,13 @@ namespace usami::ray
                        IntersectionInfo& isect) const noexcept
         {
             // ray is paralell to the disk
-            if (ray.d.Z() == 0)
+            if (ray.d.z == 0)
             {
                 return false;
             }
 
             // compute point P that ray hits at plane disk's plane
-            float t = (center.Z() - ray.o.Z()) / ray.d.Z();
+            float t = (center.z - ray.o.z) / ray.d.z;
             Vec3f P = ray.o + t * ray.d;
 
             if (t < t_min || t > t_max)

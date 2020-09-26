@@ -172,7 +172,7 @@ namespace usami
     // make sure to perform tune map for a larger dynamic range
     inline ColorRGBA SpectrumRGBToColor_Linear(Vec3f color) noexcept
     {
-        Vec3f cc = (color * 255.f).Clamp(0.f, 255.f);
+        Vec3f cc = Clamp(color * 255.f, 0.f, 255.f);
         return ColorRGBA{static_cast<uint8_t>(cc[0]), static_cast<uint8_t>(cc[1]),
                          static_cast<uint8_t>(cc[2])};
     }
@@ -222,7 +222,7 @@ namespace usami
     // make sure to perform tune map for a larger dynamic range
     inline ColorRGBA SpectrumRGBToColor_sRGB(Vec3f color) noexcept
     {
-        Vec3f cc = (Linear2sRGB(color) * 255.f).Clamp(0.f, 255.f);
+        Vec3f cc = Clamp(Linear2sRGB(color) * 255.f, 0.f, 255.f);
         return ColorRGBA{static_cast<uint8_t>(cc[0]), static_cast<uint8_t>(cc[1]),
                          static_cast<uint8_t>(cc[2])};
     }

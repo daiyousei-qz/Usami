@@ -26,13 +26,14 @@ namespace usami::ray
         {
             // TODO: reuse this with sphere shape
             // NOTE normal == wi_world
-            float u = 1 - atan2(wi_world.Y(), wi_world.X()) * kInvTwoPi;
-            float v = 1 - acos(wi_world.Z()) * kInvPi;
+            float u = 1 - std::atan2(wi_world.y, wi_world.x) * kInvTwoPi;
+            float v = 1 - std::acos(wi_world.z) * kInvPi;
             if (u < 0)
             {
                 u += 1;
             }
 
+            // TODO: deal with duvdx and duvdy
             return intensity_ * tex_->Eval({u, v}, 0.f, 0.f);
         }
 
@@ -55,7 +56,7 @@ namespace usami::ray
 
         SpectrumRGB Power() const override
         {
-            // TODO: verify this
+            // TODO: give a better estimate
             return intensity_ * kPi * world_radius_ * world_radius_;
         }
     };

@@ -26,9 +26,8 @@ namespace usami::raster
 
                 for (int ivertex = 0; ivertex < 3; ++ivertex)
                 {
-                    Vec3f normal = object.HasNormal()
-                                       ? object.GetNormal(iface, ivertex)
-                                       : (p[1] - p[0]).Cross(p[2] - p[0]).Normalize();
+                    Vec3f normal = object.HasNormal() ? object.GetNormal(iface, ivertex)
+                                                      : Cross(p[1] - p[0], p[2] - p[0]).Normalize();
                     Vec2f tex_coord =
                         object.HasTexCoord() ? object.GetTexCoord(iface, ivertex) : 0.f;
 
@@ -55,7 +54,7 @@ namespace usami::raster
 
         Matrix4 world_to_screen = ComputeWorldToScreenTransform(
             camera, {res_x, res_y}, CameraProjectionType::Perspective, z_near, z_far);
-        
+
         RenderingContext::Initialize(&canvas, world_to_screen);
         RenderingContext::Current().SetVertexShader(DefaultVertexShader::Instance());
         RenderingContext::Current().SetFregmentShader(DefaultFregmentShader::Instance());

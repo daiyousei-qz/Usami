@@ -87,15 +87,15 @@ using namespace usami::ray;
 // {
 // };
 
-int num_sample     = 100;
-Point2i resolution = {400, 200};
+int num_sample     = 8;
+Point2i resolution = {200, 200};
 
 CameraSetting camera = {
     .position = {-3, 0, 1},
     .lookat   = {1, 0, 0},
     .lookup   = {0, 0, 1},
     .fov_y    = kPi / 2,
-    .aspect   = 2,
+    .aspect   = 1,
 };
 
 unique_ptr<IntegratedScene> LoadScene()
@@ -130,7 +130,7 @@ int main()
                                   .Inverse()
                                   .Then(Matrix4::Translate3D(-camera.position));
 
-    Vec3f p = world_to_screen.ApplyPoint({0, 0, 0});
+    Vec3f p = world_to_screen.ApplyPoint({2, 0, 0});
     Vec3f v = DowngradeVecLinear(screen_to_world.Apply(Vec4f{0, 0, 0, 1})).Normalize();
 
     Canvas canvas{resolution.X(), resolution.Y()};

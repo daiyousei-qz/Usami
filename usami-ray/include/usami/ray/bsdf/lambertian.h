@@ -27,10 +27,10 @@ namespace usami::ray
             Vec3f wi = SampleCosineWeightedHemisphere(u);
 
             // correct direction if wo comes from inside of primitive
-            float abs_wi_z = wi.Z();
-            if (wo.Z() < 0)
+            float abs_wi_z = wi.z;
+            if (wo.z < 0)
             {
-                wi.Z() = -wi.Z();
+                wi.z = -wi.z;
             }
 
             wi_out  = wi;
@@ -45,7 +45,7 @@ namespace usami::ray
                 return 0.f;
             }
 
-            return PdfCosineWeightedHemisphere(Abs(wi.Z()));
+            return PdfCosineWeightedHemisphere(Abs(wi.z));
         }
     };
 } // namespace usami::ray

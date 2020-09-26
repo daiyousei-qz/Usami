@@ -13,20 +13,20 @@ namespace ImGui
 {
     bool InputVec3f(const char* label, Vec3f* v)
     {
-        bool x_changed = ImGui::InputFloat(fmt::format("{}.x", label).c_str(), &v->X());
-        bool y_changed = ImGui::InputFloat(fmt::format("{}.x", label).c_str(), &v->Y());
-        bool z_changed = ImGui::InputFloat(fmt::format("{}.x", label).c_str(), &v->Z());
+        bool x_changed = ImGui::InputFloat(fmt::format("{}.x", label).c_str(), &v->x);
+        bool y_changed = ImGui::InputFloat(fmt::format("{}.x", label).c_str(), &v->y);
+        bool z_changed = ImGui::InputFloat(fmt::format("{}.x", label).c_str(), &v->z);
         return x_changed || y_changed || z_changed;
     }
 
     bool SliderVec3f(const char* label, Vec3f* v, float v_min, float v_max)
     {
         bool x_changed =
-            ImGui::SliderFloat(fmt::format("{}.x", label).c_str(), &v->X(), v_min, v_max);
+            ImGui::SliderFloat(fmt::format("{}.x", label).c_str(), &v->x, v_min, v_max);
         bool y_changed =
-            ImGui::SliderFloat(fmt::format("{}.y", label).c_str(), &v->Y(), v_min, v_max);
+            ImGui::SliderFloat(fmt::format("{}.y", label).c_str(), &v->y, v_min, v_max);
         bool z_changed =
-            ImGui::SliderFloat(fmt::format("{}.z", label).c_str(), &v->Z(), v_min, v_max);
+            ImGui::SliderFloat(fmt::format("{}.z", label).c_str(), &v->z, v_min, v_max);
         return x_changed || y_changed || z_changed;
     }
 } // namespace ImGui

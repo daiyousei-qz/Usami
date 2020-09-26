@@ -15,8 +15,7 @@ namespace usami::ray
         float len_x, len_y;
 
     public:
-        constexpr Rect(Vec3f center, float len_x, float len_y)
-            : center(center), len_x(len_x), len_y(len_y)
+        Rect(Vec3f center, float len_x, float len_y) : center(center), len_x(len_x), len_y(len_y)
         {
             USAMI_REQUIRE(len_x > 0 && len_y > 0);
         }
@@ -30,13 +29,13 @@ namespace usami::ray
                        IntersectionInfo& isect) const noexcept
         {
             // ray is paralell to the rect
-            if (ray.d.Z() == 0)
+            if (ray.d.z == 0)
             {
                 return false;
             }
 
             // compute point P that ray hits at plane rect's plane
-            float t = (center.Z() - ray.o.Z()) / ray.d.Z();
+            float t = (center.z - ray.o.z) / ray.d.z;
             Vec3f P = ray.o + t * ray.d;
 
             if (t < t_min || t > t_max)

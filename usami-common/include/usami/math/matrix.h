@@ -4,46 +4,46 @@
 
 namespace usami
 {
-    inline constexpr Vec3f UpgradeVec(Vec2f v, float z = 1.f)
+    inline Vec3f UpgradeVec(Vec2f v, float z = 1.f)
     {
         return Vec3f{v[0], v[1], z};
     }
 
-    inline constexpr Vec4f UpgradeVec(Vec3f v, float w = 1.f)
+    inline Vec4f UpgradeVec(Vec3f v, float w = 1.f)
     {
         return Vec4f{v[0], v[1], v[2], w};
     }
 
-    inline constexpr Vec2f DowngradeVec(Vec3f v)
+    inline Vec2f DowngradeVec(Vec3f v)
     {
-        if (v.Z() == 0 || v.Z() == 1)
+        if (v.z == 0 || v.z == 1)
         {
             return Vec2f{v[0], v[1]};
         }
         else
         {
-            return Vec2f{v[0], v[1]} / v.Z();
+            return Vec2f{v[0], v[1]} / v.z;
         }
     }
-    inline constexpr Vec3f DowngradeVec(Vec4f v)
+    inline Vec3f DowngradeVec(Vec4f v)
     {
-        if (v.W() == 0 || v.W() == 1)
+        if (v.w == 0 || v.w == 1)
         {
-            return Vec3f{v[0], v[1], v[2]};
+            return Vec3f{v.x, v.y, v.z};
         }
         else
         {
-            return Vec3f{v[0], v[1], v[2]} / v.W();
+            return Vec3f{v.x, v.y, v.z} / v.w;
         }
     }
 
-    inline constexpr Vec2f DowngradeVecLinear(Vec3f v)
+    inline Vec2f DowngradeVecLinear(Vec3f v)
     {
-        return Vec2f{v[0], v[1]};
+        return Vec2f{v.x, v.y};
     }
-    inline constexpr Vec3f DowngradeVecLinear(Vec4f v)
+    inline Vec3f DowngradeVecLinear(Vec4f v)
     {
-        return Vec3f{v[0], v[1], v[2]};
+        return Vec3f{v.x, v.y, v.z};
     }
 
     class Matrix3
@@ -51,14 +51,13 @@ namespace usami
     private:
         using VectorType = Vec3f;
 
-        std::array<VectorType, 3> data;
+        std::array<VectorType, 3> rows_;
 
     public:
         Matrix3()
         {
         }
-        Matrix3(const float* p)
-            : data{ToArray<float, 3>(p), ToArray<float, 3>(p + 3), ToArray<float, 3>(p + 6)}
+        Matrix3(const float* p) : rows_{VectorType{p}, VectorType{p + 3}, VectorType{p + 6}}
         {
         }
         Matrix3(std::initializer_list<float> ilist) : Matrix3(ilist.begin())
@@ -68,11 +67,11 @@ namespace usami
 
         VectorType& operator[](size_t index) noexcept
         {
-            return data[index];
+            return rows_[index];
         }
         const VectorType& operator[](size_t index) const noexcept
         {
-            return data[index];
+            return rows_[index];
         }
 
         Matrix3 operator*(const Matrix3& other) const noexcept
@@ -84,7 +83,7 @@ namespace usami
             {
                 for (int j = 0; j < 3; ++j)
                 {
-                    m[i * 3 + j] = data[i].Dot(x.data[j]);
+                    m[i * 3 + j] = Dot(rows_[i], x.rows_[j]);
                 }
             }
 
@@ -98,25 +97,25 @@ namespace usami
 
         VectorType Apply(VectorType v) const noexcept
         {
-            return {v.Dot(data[0]), v.Dot(data[1]), v.Dot(data[2])};
+            return {Dot(v, rows_[0]), Dot(v, rows_[1]), Dot(v, rows_[2])};
         }
 
         Matrix3 Transpose() const noexcept
         {
             // clang-format off
             return Matrix3{
-                data[0][0], data[1][0], data[2][0],
-                data[0][1], data[1][1], data[2][1],
-                data[0][2], data[1][2], data[2][2],
+                rows_[0][0], rows_[1][0], rows_[2][0],
+                rows_[0][1], rows_[1][1], rows_[2][1],
+                rows_[0][2], rows_[1][2], rows_[2][2],
             };
             // clang-format on
         }
 
         Matrix3 Inverse() const noexcept
         {
-            auto [a, b, c] = data[0].Array();
-            auto [d, e, f] = data[1].Array();
-            auto [g, h, l] = data[2].Array();
+            auto [a, b, c] = rows_[0].array;
+            auto [d, e, f] = rows_[1].array;
+            auto [g, h, l] = rows_[2].array;
 
             float det = a * e * l + b * f * g + c * d * h - a * f * h - b * d * l - c * e * g;
             USAMI_ASSERT(det != 0);
@@ -181,15 +180,15 @@ namespace usami
         {
             // clang-format off
             return Matrix3{
-                1.f, 0.f, v.X(),
-                0.f, 1.f, v.Y(),
+                1.f, 0.f, v.x,
+                0.f, 1.f, v.y,
                 0.f, 0.f, 1.f  ,
             };
             // clang-format on
         }
         static Matrix3 Rotate2D(Vec2f pivot, float theta) noexcept
         {
-            auto [x, y] = pivot.Normalize().Array();
+            auto [x, y] = pivot.Normalize().array;
             float c     = std::cos(theta);
             float s     = std::sqrt(1 - c * c);
 
@@ -205,8 +204,8 @@ namespace usami
         {
             // clang-format off
             Matrix3 linear_projection = Matrix3{
-                vx.X(), vy.X(), 0.f,
-                vx.Y(), vy.Y(), 0.f,
+                vx.x, vy.x, 0.f,
+                vx.y, vy.y, 0.f,
                 0.f   , 0.f   , 1.f,
             };
             // clang-format on
@@ -220,15 +219,14 @@ namespace usami
     private:
         using VectorType = Vec4f;
 
-        std::array<VectorType, 4> data;
+        std::array<VectorType, 4> rows_;
 
     public:
         Matrix4()
         {
         }
         Matrix4(const float* p)
-            : data{ToArray<float, 4>(p), ToArray<float, 4>(p + 4), ToArray<float, 4>(p + 8),
-                   ToArray<float, 4>(p + 12)}
+            : rows_{VectorType{p}, VectorType{p + 4}, VectorType{p + 8}, VectorType{p + 12}}
         {
         }
         Matrix4(std::initializer_list<float> ilist) : Matrix4(ilist.begin())
@@ -238,11 +236,11 @@ namespace usami
 
         VectorType& operator[](size_t index) noexcept
         {
-            return data[index];
+            return rows_[index];
         }
         const VectorType& operator[](size_t index) const noexcept
         {
-            return data[index];
+            return rows_[index];
         }
 
         Matrix4 operator*(const Matrix4& other) const noexcept
@@ -254,7 +252,7 @@ namespace usami
             {
                 for (int j = 0; j < 4; ++j)
                 {
-                    m[i * 4 + j] = data[i].Dot(x.data[j]);
+                    m[i * 4 + j] = Dot(rows_[i], x.rows_[j]);
                 }
             }
 
@@ -268,7 +266,7 @@ namespace usami
 
         VectorType Apply(VectorType v) const noexcept
         {
-            return {v.Dot(data[0]), v.Dot(data[1]), v.Dot(data[2]), v.Dot(data[3])};
+            return {Dot(v, rows_[0]), Dot(v, rows_[1]), Dot(v, rows_[2]), Dot(v, rows_[3])};
         }
         Vec3f ApplyPoint(Vec3f v) const noexcept
         {
@@ -283,19 +281,19 @@ namespace usami
         {
             // clang-format off
             return Matrix4{
-                data[0][0], data[1][0], data[2][0], data[3][0],
-                data[0][1], data[1][1], data[2][1], data[3][1],
-                data[0][2], data[1][2], data[2][2], data[3][2],
-                data[0][3], data[1][3], data[2][3], data[3][3],
+                rows_[0][0], rows_[1][0], rows_[2][0], rows_[3][0],
+                rows_[0][1], rows_[1][1], rows_[2][1], rows_[3][1],
+                rows_[0][2], rows_[1][2], rows_[2][2], rows_[3][2],
+                rows_[0][3], rows_[1][3], rows_[2][3], rows_[3][3],
             };
             // clang-format on
         }
         Matrix4 Inverse() const noexcept
         {
-            auto [a, b, c, d] = data[0].Array();
-            auto [e, f, g, h] = data[1].Array();
-            auto [i, j, k, l] = data[2].Array();
-            auto [m, n, o, p] = data[3].Array();
+            auto [a, b, c, d] = rows_[0].array;
+            auto [e, f, g, h] = rows_[1].array;
+            auto [i, j, k, l] = rows_[2].array;
+            auto [m, n, o, p] = rows_[3].array;
 
             float det;
             float inv[16];
@@ -411,16 +409,16 @@ namespace usami
         {
             // clang-format off
             return Matrix4{
-                1.f, 0.f, 0.f, v.X(),
-                0.f, 1.f, 0.f, v.Y(),
-                0.f, 0.f, 1.f, v.Z(),
+                1.f, 0.f, 0.f, v.x,
+                0.f, 1.f, 0.f, v.y,
+                0.f, 0.f, 1.f, v.z,
                 0.f, 0.f, 0.f, 1.f,
             };
             // clang-format on
         }
         static Matrix4 Rotate3D(Vec3f pivot, float theta) noexcept
         {
-            auto [x, y, z] = pivot.Normalize().Array();
+            auto [x, y, z] = pivot.Normalize().array;
             float c        = std::cos(theta);
             float s        = std::sqrt(1 - c * c);
 
@@ -479,10 +477,10 @@ namespace usami
         {
             // clang-format off
             Matrix4 linear_projection = Matrix4{
-                vx.X(), vy.X(), vz.X(), 0,
-                vx.Y(), vy.Y(), vz.Y(), 0,
-                vx.Z(), vy.Z(), vz.Z(), 0,
-                0     , 0     , 0     , 1,
+                vx.x, vy.x, vz.x, 0,
+                vx.y, vy.y, vz.y, 0,
+                vx.z, vy.z, vz.z, 0,
+                0   , 0   , 0   , 1,
             };
             // clang-format on
 
@@ -491,9 +489,9 @@ namespace usami
         static Matrix4 ChangeBasis3D(Vec3f vtheta, Vec3f vp) noexcept
         {
             return Matrix4::Translate3D(-vp)
-                .Then(Matrix4::RotateZ3D(vtheta.Z()))
-                .Then(Matrix4::RotateY3D(vtheta.Y()))
-                .Then(Matrix4::RotateX3D(vtheta.X()));
+                .Then(Matrix4::RotateZ3D(vtheta.z))
+                .Then(Matrix4::RotateY3D(vtheta.y))
+                .Then(Matrix4::RotateX3D(vtheta.x));
         }
     };
 } // namespace usami

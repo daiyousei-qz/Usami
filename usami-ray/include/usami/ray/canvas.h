@@ -38,17 +38,17 @@ namespace usami::ray
         void SetPixel(int x, int y, SpectrumRGB color)
         {
             int offset             = (y * width_ + x) * 3;
-            buffer_.At(offset)     = color.X();
-            buffer_.At(offset + 1) = color.Y();
-            buffer_.At(offset + 2) = color.Z();
+            buffer_.At(offset)     = color.x;
+            buffer_.At(offset + 1) = color.y;
+            buffer_.At(offset + 2) = color.z;
         }
 
         void AppendPixel(int x, int y, SpectrumRGB color)
         {
             int offset = (y * width_ + x) * 3;
-            buffer_.At(offset) += color.X();
-            buffer_.At(offset + 1) += color.Y();
-            buffer_.At(offset + 2) += color.Z();
+            buffer_.At(offset) += color.x;
+            buffer_.At(offset + 1) += color.y;
+            buffer_.At(offset + 2) += color.z;
         }
 
         SpectrumRGB GetPixel(int x, int y)

@@ -12,6 +12,9 @@ target_include_directories(usami-common
     PUBLIC "include"
     PRIVATE "src")
 
+find_package(xsimd CONFIG REQUIRED)
+target_link_libraries(usami-common PUBLIC xsimd)
+
 find_package(fmt CONFIG REQUIRED)
 target_link_libraries(usami-common PUBLIC fmt::fmt)
 

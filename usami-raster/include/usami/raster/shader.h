@@ -70,7 +70,7 @@ namespace usami::raster
                  const Vec2f& duvdx, const Vec2f& duvdy, Vec3f& out_color) override
         {
             Vec3f n   = v0.normal * bar[0] + v1.normal * bar[1] + v2.normal * bar[2];
-            out_color = n.Abs();
+            out_color = Abs(n);
 
             return true;
         }

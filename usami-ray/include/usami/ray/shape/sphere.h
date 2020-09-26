@@ -12,7 +12,7 @@ namespace usami::ray
         float radius;
 
     public:
-        constexpr Sphere(Vec3f center, float radius) : center(center), radius(radius)
+        Sphere(Vec3f center, float radius) : center(center), radius(radius)
         {
         }
 
@@ -63,8 +63,12 @@ namespace usami::ray
 
             Vec3f P      = A + t * B;
             Vec3f normal = (P - C).Normalize();
-            float u      = 0.5f + atan2(-normal.Z(), -normal.X()) * kInvTwoPi;
-            float v      = 0.5f - asin(-normal.Y()) * kInvPi;
+            float u      = 1 - std::atan2(normal.y, normal.x) * kInvTwoPi;
+            float v      = 1 - std::acos(normal.z) * kInvPi;
+            if (u < 0)
+            {
+                u += 1;
+            }
 
             isect.t     = t;
             isect.point = P;

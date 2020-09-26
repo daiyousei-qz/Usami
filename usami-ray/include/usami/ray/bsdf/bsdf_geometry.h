@@ -12,10 +12,10 @@ namespace usami::ray
     // TODO: generate inverse matrix, too
     inline Matrix4 CreateBsdfCoordTransform(Vec3f n)
     {
-        if (n.X() != 0 || n.Y() != 0)
+        if (n.x != 0 || n.y != 0)
         {
             Vec3f nz = n.Normalize();
-            Vec3f nx = Vec3f{n.Y(), -n.X(), 0.f}.Normalize();
+            Vec3f nx = Vec3f{n.y, -n.x, 0.f}.Normalize();
             Vec3f ny = Cross(n, nx);
 
             return Matrix4::ChangeBasis3D(nx, ny, nz, 0.f);
@@ -23,7 +23,7 @@ namespace usami::ray
         else
         {
             Vec3f nz = n.Normalize();
-            Vec3f nx = Vec3f{n.Z() > 0 ? 1.f : -1.f, 0.f, 0.f};
+            Vec3f nx = Vec3f{n.z > 0 ? 1.f : -1.f, 0.f, 0.f};
             Vec3f ny = Vec3f{0.f, 1.f, 0.f};
 
             return Matrix4::ChangeBasis3D(nx, ny, nz, 0.f);
@@ -32,20 +32,20 @@ namespace usami::ray
 
     inline bool SameHemisphere(const Vec3f& wo, const Vec3f& wi) noexcept
     {
-        return wo.Z() * wi.Z() > 0;
+        return wo.z * wi.z > 0;
     }
 
     inline float CosTheta(const Vec3f& w) noexcept
     {
-        return w.Z();
+        return w.z;
     }
     inline float Cos2Theta(const Vec3f& w) noexcept
     {
-        return w.Z() * w.Z();
+        return w.z * w.z;
     }
     inline float AbsCosTheta(const Vec3f& w) noexcept
     {
-        return Abs(w.Z());
+        return Abs(w.z);
     }
     inline float Sin2Theta(const Vec3f& w) noexcept
     {
@@ -70,14 +70,14 @@ namespace usami::ray
     // assume SameHemiSphere(wo, n)
     inline Vec3f ReflectRay(const Vec3f& wo, const Vec3f& n) noexcept
     {
-        auto h = wo.Dot(n);
+        auto h = Dot(wo, n);
         return -wo + 2 * h * n;
     }
 
     // assume n = +-kBsdfNormal
     inline Vec3f ReflectRayQuick(const Vec3f& wo) noexcept
     {
-        return Vec3f{-wo.X(), -wo.Y(), wo.Z()};
+        return Vec3f{-wo.x, -wo.y, wo.z};
     }
 
     // assume SameHemiSphere(wo, n)

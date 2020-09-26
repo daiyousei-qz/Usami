@@ -3,7 +3,7 @@
     <Type Name="usami::Vec&lt;*&gt;">
         <DisplayString>Vec{VecSize}</DisplayString>
         <Expand>
-            <ExpandedItem>data.array</ExpandedItem>
+            <ExpandedItem>array</ExpandedItem>
         </Expand>
     </Type>
 </AutoVisualizer>
