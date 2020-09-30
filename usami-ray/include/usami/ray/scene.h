@@ -7,7 +7,7 @@
 
 namespace usami::ray
 {
-    constexpr float kTravelDistanceMin = 1e-1f;
+    constexpr float kTravelDistanceMin = 1e-3f;
     constexpr float kTravelDistanceMax = 1e8f;
 
     class Scene : public virtual UsamiObject
@@ -36,6 +36,12 @@ namespace usami::ray
 
         virtual bool Intersect(const Ray& ray, Workspace& workspace,
                                IntersectionInfo& isect) const = 0;
+
+        virtual bool IntersectQuick(const Ray& ray, Workspace& workspace,
+                                    IntersectionInfo& isect) const
+        {
+            return Intersect(ray, workspace, isect);
+        }
 
     protected:
         void UpdateLightDistribution()

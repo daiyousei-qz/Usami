@@ -1,5 +1,7 @@
 #include <cstdio>
+#include "usami/math/basic_vector.h"
 #include "usami/camera.h"
+#include "usami/mesh.h"
 #include "usami/texture.h"
 #include "usami/texture/test.h"
 #include "usami/texture/image.h"
@@ -122,6 +124,11 @@ unique_ptr<IntegratedScene> LoadScene()
 int main()
 {
     using namespace usami;
+    auto model___ = ParseModel("d:/models/duck/Duck.gltf");
+    constexpr Vec3f vx{1, 0, 0};
+    constexpr Vec3f vy{0, 1, 0};
+    constexpr Vec3f vz  = Cross(vx, vy);
+    constexpr Matrix4 m = Matrix4::ChangeBasis3D({1, 0, 0}, {0, 1, 0}, {0, 0, 1}, {0, 0, 0});
 
     auto scene = LoadScene();
     Matrix4 world_to_screen =
@@ -133,13 +140,13 @@ int main()
     Vec3f p = world_to_screen.ApplyPoint({2, 0, 0});
     Vec3f v = DowngradeVecLinear(screen_to_world.Apply(Vec4f{0, 0, 0, 1})).Normalize();
 
-    Canvas canvas{resolution.X(), resolution.Y()};
+    Canvas canvas{resolution.x, resolution.y};
     PathTracingIntegrator integrator{};
     RenderingContext ctx{};
     Sampler sampler{0xdeadbeef};
-    for (int y = 0; y < resolution.Y(); ++y)
+    for (int y = 0; y < resolution.y; ++y)
     {
-        for (int x = 0; x < resolution.X(); ++x)
+        for (int x = 0; x < resolution.y; ++x)
         {
             Vec4f screen_pos = Vec4f{static_cast<float>(x), static_cast<float>(y), 0, 1};
             Vec3f ray_dir    = DowngradeVecLinear(screen_to_world.Apply(screen_pos)).Normalize();

@@ -27,7 +27,7 @@ namespace usami
     };
 
     template <typename TFmt, typename... TArgs>
-    [[noreturn]] void Throw(const TFmt& fmt, const TArgs&... args)
+    [[noreturn]] inline void Throw(const TFmt& fmt, const TArgs&... args)
     {
         throw std::runtime_error(fmt::format(fmt, args...));
     }

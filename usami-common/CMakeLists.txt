@@ -24,5 +24,8 @@ target_link_libraries(usami-common PUBLIC nlohmann_json)
 find_package(tinyobjloader CONFIG REQUIRED)
 target_link_libraries(usami-common PRIVATE tinyobjloader::tinyobjloader)
 
+find_path(TINYGLTF_INCLUDE_DIRS "tiny_gltf.h")
+target_include_directories(usami-common PRIVATE ${TINYGLTF_INCLUDE_DIRS})
+
 find_path(STB_INCLUDE_DIRS "stb.h")
 target_include_directories(usami-common PRIVATE ${STB_INCLUDE_DIRS})

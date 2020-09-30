@@ -7,6 +7,8 @@
 
 namespace usami
 {
+    constexpr float kFloatEpsilon = 1e-7;
+
     constexpr float kPi       = 3.1415926535f;
     constexpr float kInvPi    = 1.f / kPi;
     constexpr float kTwoPi    = 2.f * kPi;
@@ -14,6 +16,13 @@ namespace usami
 
     constexpr float kAreaUnitSphere     = 4.f * kPi;
     constexpr float kAreaUnitHemisphere = 2.f * kPi;
+
+    using Array2i = std::array<int, 2>;
+    using Array3i = std::array<int, 3>;
+    using Array4i = std::array<int, 4>;
+    using Array2f = std::array<float, 2>;
+    using Array3f = std::array<float, 3>;
+    using Array4f = std::array<float, 4>;
 
     inline constexpr float AreaUnitCone(float cos_theta) noexcept
     {

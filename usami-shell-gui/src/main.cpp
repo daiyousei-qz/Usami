@@ -4,6 +4,7 @@
 #include "usami/camera.h"
 #include "usami/raster/render.h"
 #include "quick_imgui.h"
+#include "imgui.h"
 #include <chrono>
 
 using namespace usami;

@@ -2,6 +2,7 @@
 #include "usami/math/point.h"
 #include <cstdint>
 #include <random>
+#include <bit>
 
 namespace usami
 {
@@ -68,8 +69,7 @@ namespace usami
         uint32_t u = static_cast<uint32_t>(engine.Next() >> (64 - 23));
         u |= 0x7fu << 23;
 
-        // TODO: use bit_cast here to avoid undefined behavior
-        return *reinterpret_cast<float*>(&u) - 1.f;
+        return std::bit_cast<float>(u) - 1.f;
 
         // constexpr uint64_t mask = 0x7ffff;
         // constexpr float unit = 1 / static_cast<float>(1 + mask);

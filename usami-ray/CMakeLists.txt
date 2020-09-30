@@ -14,3 +14,7 @@ target_include_directories(usami-ray
 
 target_link_libraries(usami-ray
     PUBLIC usami-common)
+
+find_package(TBB CONFIG REQUIRED)
+find_package(embree 3 CONFIG REQUIRED)
+target_link_libraries(usami-ray PUBLIC embree)

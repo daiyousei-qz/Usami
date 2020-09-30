@@ -3,9 +3,9 @@
 #include <concepts>
 #include <numeric>
 #include <type_traits>
-#include <exception>
 #include <cstdlib>
 #include <cmath>
+#include <span>
 #include "xsimd/xsimd.hpp"
 #include "immintrin.h"
 
@@ -13,6 +13,12 @@ namespace usami
 {
     namespace detail
     {
+#define DEFINE_XYZW_ACCESSOR(NAME, INDEX)                                                          \
+    constexpr T NAME() const noexcept                                                              \
+    {                                                                                              \
+        return array[INDEX];                                                                       \
+    }
+
         template <typename T, size_t N>
         struct VecBase_Trivial
         {
@@ -22,30 +28,22 @@ namespace usami
 
             std::array<T, N> array;
 
-            VecBase_Trivial()
+            constexpr VecBase_Trivial()
             {
             }
-            VecBase_Trivial(const T& x)
+            constexpr VecBase_Trivial(const T& x)
             {
                 array.fill(x);
             }
-            VecBase_Trivial(const T* p)
+            constexpr VecBase_Trivial(std::span<const T, N> xs)
             {
                 for (size_t i = 0; i < N; ++i)
                 {
-                    array[i] = p[i];
+                    array[i] = xs[i];
                 }
             }
             constexpr VecBase_Trivial(std::array<T, N> xs) : array(xs)
             {
-            }
-
-            VecBase_Trivial(const VecBase_Trivial& other) : array(other.array)
-            {
-            }
-            VecBase_Trivial& operator=(const VecBase_Trivial& other)
-            {
-                array = other.array;
             }
         };
 
@@ -58,30 +56,22 @@ namespace usami
 
             std::array<T, N> array;
 
-            VecBase_Simd()
+            constexpr VecBase_Simd()
             {
             }
-            VecBase_Simd(const T& x)
+            constexpr VecBase_Simd(const T& x)
             {
                 array.fill(x);
             }
-            VecBase_Simd(const T* p)
+            constexpr VecBase_Simd(std::span<const T, N> xs)
             {
                 for (size_t i = 0; i < N; ++i)
                 {
-                    array[i] = p[i];
+                    array[i] = xs[i];
                 }
             }
             constexpr VecBase_Simd(std::array<T, N> xs) : array(xs)
             {
-            }
-
-            VecBase_Simd(const VecBase_Simd& other) : array(other.array)
-            {
-            }
-            VecBase_Simd& operator=(const VecBase_Simd& other)
-            {
-                array = other.array;
             }
         };
 
@@ -101,30 +91,22 @@ namespace usami
                 };
             };
 
-            VecBase_Simd()
+            constexpr VecBase_Simd()
             {
             }
-            VecBase_Simd(const T& x)
+            constexpr VecBase_Simd(const T& x) : array{x, x}
             {
-                array.fill(x);
             }
-            VecBase_Simd(const T* p)
+            constexpr VecBase_Simd(std::span<const T, 2> xs) : array{xs[0], xs[1]}
             {
-                array[0] = p[0];
-                array[1] = p[1];
             }
             constexpr VecBase_Simd(std::array<T, 2> xs) : array(xs)
             {
             }
 
-            VecBase_Simd(const VecBase_Simd& other) : array(other.array)
-            {
-            }
-            VecBase_Simd& operator=(const VecBase_Simd& other)
-            {
-                array = other.array;
-            }
-        };
+            DEFINE_XYZW_ACCESSOR(X, 0)
+            DEFINE_XYZW_ACCESSOR(Y, 1)
+        }; // namespace detail
 
         template <typename T>
         struct VecBase_Simd<T, 3>
@@ -144,18 +126,14 @@ namespace usami
                 xsimd::batch<T, 4> simd_vec;
             };
 
-            VecBase_Simd()
+            constexpr VecBase_Simd()
             {
             }
-            VecBase_Simd(const T& x)
+            constexpr VecBase_Simd(const T& x) : array{x, x, x}
             {
-                array.fill(x);
             }
-            VecBase_Simd(const T* p)
+            constexpr VecBase_Simd(std::span<const T, 3> xs) : array{xs[0], xs[1], xs[2]}
             {
-                array[0] = p[0];
-                array[1] = p[1];
-                array[2] = p[2];
             }
             constexpr VecBase_Simd(std::array<T, 3> xs) : array(xs)
             {
@@ -164,13 +142,9 @@ namespace usami
             {
             }
 
-            VecBase_Simd(const VecBase_Simd& other) : simd_vec(other.simd_vec)
-            {
-            }
-            VecBase_Simd& operator=(const VecBase_Simd& other)
-            {
-                simd_vec = other.simd_vec;
-            }
+            DEFINE_XYZW_ACCESSOR(X, 0)
+            DEFINE_XYZW_ACCESSOR(Y, 1)
+            DEFINE_XYZW_ACCESSOR(Z, 2)
         };
 
         template <typename T>
@@ -191,19 +165,14 @@ namespace usami
                 xsimd::batch<T, 4> simd_vec;
             };
 
-            VecBase_Simd()
+            constexpr VecBase_Simd()
             {
             }
-            VecBase_Simd(const T& x)
+            constexpr VecBase_Simd(const T& x) : array{x, x, x, x}
             {
-                array.fill(x);
             }
-            VecBase_Simd(const T* p)
+            constexpr VecBase_Simd(std::span<const T, 4> xs) : array{xs[0], xs[1], xs[2], xs[3]}
             {
-                array[0] = p[0];
-                array[1] = p[1];
-                array[2] = p[2];
-                array[3] = p[3];
             }
             constexpr VecBase_Simd(std::array<T, 4> xs) : array(xs)
             {
@@ -212,13 +181,10 @@ namespace usami
             {
             }
 
-            VecBase_Simd(const VecBase_Simd& other) : simd_vec(other.simd_vec)
-            {
-            }
-            VecBase_Simd& operator=(const VecBase_Simd& other)
-            {
-                simd_vec = other.simd_vec;
-            }
+            DEFINE_XYZW_ACCESSOR(X, 0)
+            DEFINE_XYZW_ACCESSOR(Y, 1)
+            DEFINE_XYZW_ACCESSOR(Z, 2)
+            DEFINE_XYZW_ACCESSOR(W, 3)
         };
 
         template <typename T, size_t N, bool UseSimd>
@@ -236,11 +202,13 @@ namespace usami
         static constexpr size_t VecSize = N;
 
     public:
-        Vec() = default;
-        Vec(const T& x) : BaseType(x)
+        constexpr Vec()
         {
         }
-        Vec(BaseType data) : BaseType(data)
+        constexpr Vec(const T& x) : BaseType(x)
+        {
+        }
+        constexpr Vec(BaseType data) : BaseType(data)
         {
         }
 
@@ -256,24 +224,21 @@ namespace usami
         {
         }
 
-        Vec(const T* p) : BaseType(p)
+        constexpr Vec(const float* xs) : BaseType(std::span<const T, N>(xs, N))
+        {
+        }
+        constexpr Vec(std::array<T, N> xs) : BaseType(xs)
+        {
+        }
+        constexpr Vec(std::span<const T, N> xs) : BaseType(xs)
         {
         }
 
-        Vec(const Vec& other) : BaseType(other)
-        {
-        }
-        Vec& operator=(const Vec& other)
-        {
-            BaseType::array = other.array;
-            return *this;
-        }
-
-        T& operator[](size_t i) noexcept
+        constexpr T& operator[](size_t i) noexcept
         {
             return BaseType::array[i];
         }
-        const T& operator[](size_t i) const noexcept
+        constexpr const T& operator[](size_t i) const noexcept
         {
             return BaseType::array[i];
         }
@@ -294,7 +259,7 @@ namespace usami
         DEFINE_FORWARDED_ITER_FUNCTION(rend)
 #undef DEFINE_FORWARDED_ITER_FUNCTION
 
-        ElemType LengthSq() const noexcept;
+        constexpr ElemType LengthSq() const noexcept;
         ElemType Length() const noexcept;
         Vec Normalize() const;
     };
@@ -318,27 +283,28 @@ namespace usami
     using VecArrayType = typename T::ArrayType;
 
     template <VecType T>
-    inline T operator+(const T& a) noexcept
+    inline constexpr T operator+(const T& a) noexcept
     {
         return a;
     }
     template <VecType T>
-    inline T operator-(const T& a) noexcept
+    inline constexpr T operator-(const T& a) noexcept
     {
-        if constexpr (T::HasSimdVec)
+        if (!std::is_constant_evaluated())
         {
-            return typename T::BaseType{-a.simd_vec};
-        }
-        else
-        {
-            auto xs = a.array;
-            for (int i = 0; i < T::VecSize; ++i)
+            if constexpr (T::HasSimdVec)
             {
-                xs[i] = -xs[i];
+                return typename T::BaseType{-a.simd_vec};
             }
-
-            return typename T::BaseType{xs};
         }
+
+        auto xs = a.array;
+        for (int i = 0; i < T::VecSize; ++i)
+        {
+            xs[i] = -xs[i];
+        }
+
+        return typename T::BaseType{xs};
     }
 
     template <VecType T>
@@ -510,67 +476,69 @@ namespace usami
     }
 
     template <VecType T>
-    VecElemType<T> Dot(const T& a, const T& b)
+    constexpr VecElemType<T> Dot(const T& a, const T& b)
     {
-        if constexpr (T::HasSimdVec)
+        if (!std::is_constant_evaluated())
         {
-            using TElem        = VecElemType<T>;
-            constexpr size_t N = T::VecSize;
+            if constexpr (T::HasSimdVec)
+            {
+                using TElem        = VecElemType<T>;
+                constexpr size_t N = T::VecSize;
 
-            if constexpr (std::is_same_v<TElem, float> && (N == 3 || N == 4))
-            {
-                constexpr int dp_mask = N == 3 ? 0x71 : 0xf1;
-                return _mm_cvtss_f32(_mm_dp_ps(a.simd_vec, b.simd_vec, dp_mask));
-            }
-            if constexpr (N == 3)
-            {
-                auto a_simd_vec = a.simd_vec;
-                a_simd_vec[3]   = 0;
+                if constexpr (std::is_same_v<TElem, float> && (N == 3 || N == 4))
+                {
+                    constexpr int dp_mask = N == 3 ? 0x71 : 0xf1;
+                    return _mm_cvtss_f32(_mm_dp_ps(a.simd_vec, b.simd_vec, dp_mask));
+                }
+                if constexpr (N == 3)
+                {
+                    auto a_simd_vec = a.simd_vec;
+                    a_simd_vec[3]   = 0;
 
-                return xsimd::hadd(a_simd_vec * b.simd_vec);
-            }
-            else
-            {
-                return xsimd::hadd(a.simd_vec * b.simd_vec);
+                    return xsimd::hadd(a_simd_vec * b.simd_vec);
+                }
+                else
+                {
+                    return xsimd::hadd(a.simd_vec * b.simd_vec);
+                }
             }
         }
-        else
-        {
-            VecElemType<T> ans = 0;
-            for (int i = 0; i < T::VecSize; ++i)
-            {
-                ans += a.array[i] * b.array[i];
-            }
 
-            return ans;
+        VecElemType<T> ans = 0;
+        for (int i = 0; i < T::VecSize; ++i)
+        {
+            ans += a.array[i] * b.array[i];
         }
+
+        return ans;
     }
 
     template <VecType T>
-    T Cross(const T& a, const T& b) requires(T::VecSize == 3)
+    constexpr T Cross(const T& a, const T& b) requires(T::VecSize == 3)
     {
-        if constexpr (T::HasSimdVec)
+        if (!std::is_constant_evaluated())
         {
-            static_assert(T::SimdWidth == 4);
+            if constexpr (T::HasSimdVec)
+            {
+                static_assert(T::SimdWidth == 4);
 
-            auto ans = _mm_sub_ps(_mm_mul_ps(_mm_permute_ps(a.simd_vec, _MM_PERM_DACB),
-                                             _mm_permute_ps(b.simd_vec, _MM_PERM_DBAC)),
-                                  _mm_mul_ps(_mm_permute_ps(a.simd_vec, _MM_PERM_DBAC),
-                                             _mm_permute_ps(b.simd_vec, _MM_PERM_DACB)));
+                auto ans = _mm_sub_ps(_mm_mul_ps(_mm_permute_ps(a.simd_vec, _MM_PERM_DACB),
+                                                 _mm_permute_ps(b.simd_vec, _MM_PERM_DBAC)),
+                                      _mm_mul_ps(_mm_permute_ps(a.simd_vec, _MM_PERM_DBAC),
+                                                 _mm_permute_ps(b.simd_vec, _MM_PERM_DACB)));
 
-            return typename T::BaseType{ans};
+                return typename T::BaseType{ans};
+            }
         }
-        else
-        {
-            const auto& [a1, a2, a3] = a.array;
-            const auto& [b1, b2, b3] = b.array;
 
-            return T{a2 * b3 - a3 * b2, -a1 * b3 + a3 * b1, a1 * b2 - a2 * b1};
-        }
+        const auto& [a1, a2, a3] = a.array;
+        const auto& [b1, b2, b3] = b.array;
+
+        return T{a2 * b3 - a3 * b2, -a1 * b3 + a3 * b1, a1 * b2 - a2 * b1};
     }
 
     template <typename TElem, size_t N, bool UseSimd>
-    TElem Vec<TElem, N, UseSimd>::LengthSq() const noexcept
+    constexpr TElem Vec<TElem, N, UseSimd>::LengthSq() const noexcept
     {
         return Dot(*this, *this);
     }

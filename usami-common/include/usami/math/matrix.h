@@ -4,17 +4,17 @@
 
 namespace usami
 {
-    inline Vec3f UpgradeVec(Vec2f v, float z = 1.f)
+    inline constexpr Vec3f UpgradeVec(Vec2f v, float z = 1.f)
     {
         return Vec3f{v[0], v[1], z};
     }
 
-    inline Vec4f UpgradeVec(Vec3f v, float w = 1.f)
+    inline constexpr Vec4f UpgradeVec(Vec3f v, float w = 1.f)
     {
         return Vec4f{v[0], v[1], v[2], w};
     }
 
-    inline Vec2f DowngradeVec(Vec3f v)
+    inline constexpr Vec2f DowngradeVec(Vec3f v)
     {
         if (v.z == 0 || v.z == 1)
         {
@@ -25,7 +25,7 @@ namespace usami
             return Vec2f{v[0], v[1]} / v.z;
         }
     }
-    inline Vec3f DowngradeVec(Vec4f v)
+    inline constexpr Vec3f DowngradeVec(Vec4f v)
     {
         if (v.w == 0 || v.w == 1)
         {
@@ -37,11 +37,11 @@ namespace usami
         }
     }
 
-    inline Vec2f DowngradeVecLinear(Vec3f v)
+    inline constexpr Vec2f DowngradeVecLinear(Vec3f v)
     {
         return Vec2f{v.x, v.y};
     }
-    inline Vec3f DowngradeVecLinear(Vec4f v)
+    inline constexpr Vec3f DowngradeVecLinear(Vec4f v)
     {
         return Vec3f{v.x, v.y, v.z};
     }
@@ -54,27 +54,30 @@ namespace usami
         std::array<VectorType, 3> rows_;
 
     public:
-        Matrix3()
+        constexpr Matrix3()
         {
         }
-        Matrix3(const float* p) : rows_{VectorType{p}, VectorType{p + 3}, VectorType{p + 6}}
+        constexpr Matrix3(std::span<const float, 9> xs)
+            : rows_{VectorType(xs.subspan<0, 3>()), VectorType(xs.subspan<3, 3>()),
+                    VectorType(xs.subspan<6, 3>())}
         {
         }
-        Matrix3(std::initializer_list<float> ilist) : Matrix3(ilist.begin())
+        constexpr Matrix3(float x00, float x01, float x02, float x10, float x11, float x12,
+                          float x20, float x21, float x22)
+            : rows_{VectorType(x00, x01, x02), VectorType(x10, x11, x12), VectorType(x20, x21, x22)}
         {
-            USAMI_ASSERT(ilist.size() == 9);
         }
 
-        VectorType& operator[](size_t index) noexcept
+        constexpr VectorType& operator[](size_t index) noexcept
         {
             return rows_[index];
         }
-        const VectorType& operator[](size_t index) const noexcept
+        constexpr const VectorType& operator[](size_t index) const noexcept
         {
             return rows_[index];
         }
 
-        Matrix3 operator*(const Matrix3& other) const noexcept
+        constexpr Matrix3 operator*(const Matrix3& other) const noexcept
         {
             Matrix3 x = other.Transpose();
 
@@ -90,17 +93,17 @@ namespace usami
             return Matrix3{m};
         }
 
-        Matrix3 Then(const Matrix3& other) const noexcept
+        constexpr Matrix3 Then(const Matrix3& other) const noexcept
         {
             return other * (*this);
         }
 
-        VectorType Apply(VectorType v) const noexcept
+        constexpr VectorType Apply(VectorType v) const noexcept
         {
             return {Dot(v, rows_[0]), Dot(v, rows_[1]), Dot(v, rows_[2])};
         }
 
-        Matrix3 Transpose() const noexcept
+        constexpr Matrix3 Transpose() const noexcept
         {
             // clang-format off
             return Matrix3{
@@ -111,7 +114,7 @@ namespace usami
             // clang-format on
         }
 
-        Matrix3 Inverse() const noexcept
+        constexpr Matrix3 Inverse() const noexcept
         {
             auto [a, b, c] = rows_[0].array;
             auto [d, e, f] = rows_[1].array;
@@ -136,7 +139,7 @@ namespace usami
         }
 
     public:
-        static Matrix3 Zero() noexcept
+        static constexpr Matrix3 Zero() noexcept
         {
             // clang-format off
             return Matrix3{
@@ -146,7 +149,7 @@ namespace usami
             };
             // clang-format on
         }
-        static Matrix3 Identity() noexcept
+        static constexpr Matrix3 Identity() noexcept
         {
             // clang-format off
             return Matrix3{
@@ -156,7 +159,7 @@ namespace usami
             };
             // clang-format on
         }
-        static Matrix3 Scale2D(float k) noexcept
+        static constexpr Matrix3 Scale2D(float k) noexcept
         {
             // clang-format off
             return Matrix3{
@@ -166,7 +169,7 @@ namespace usami
             };
             // clang-format on
         }
-        static Matrix3 Scale2D(float kx, float ky) noexcept
+        static constexpr Matrix3 Scale2D(float kx, float ky) noexcept
         {
             // clang-format off
             return Matrix3{
@@ -176,12 +179,12 @@ namespace usami
             };
             // clang-format on
         }
-        static Matrix3 Translate2D(Vec2f v) noexcept
+        static constexpr Matrix3 Translate2D(Vec2f v) noexcept
         {
             // clang-format off
             return Matrix3{
-                1.f, 0.f, v.x,
-                0.f, 1.f, v.y,
+                1.f, 0.f, v.X(),
+                0.f, 1.f, v.Y(),
                 0.f, 0.f, 1.f  ,
             };
             // clang-format on
@@ -200,12 +203,12 @@ namespace usami
             };
             // clang-format on
         }
-        static Matrix3 ChangeBasis2D(Vec2f vx, Vec2f vy, Vec2f vp) noexcept
+        static constexpr Matrix3 ChangeBasis2D(Vec2f vx, Vec2f vy, Vec2f vp) noexcept
         {
             // clang-format off
             Matrix3 linear_projection = Matrix3{
-                vx.x, vy.x, 0.f,
-                vx.y, vy.y, 0.f,
+                vx.X(), vy.X(), 0.f,
+                vx.Y(), vy.Y(), 0.f,
                 0.f   , 0.f   , 1.f,
             };
             // clang-format on
@@ -222,28 +225,32 @@ namespace usami
         std::array<VectorType, 4> rows_;
 
     public:
-        Matrix4()
+        constexpr Matrix4()
         {
         }
-        Matrix4(const float* p)
-            : rows_{VectorType{p}, VectorType{p + 4}, VectorType{p + 8}, VectorType{p + 12}}
+        constexpr Matrix4(std::span<const float, 16> xs)
+            : rows_{VectorType(xs.subspan<0, 4>()), VectorType(xs.subspan<4, 4>()),
+                    VectorType(xs.subspan<8, 4>()), VectorType(xs.subspan<12, 4>())}
         {
         }
-        Matrix4(std::initializer_list<float> ilist) : Matrix4(ilist.begin())
+        constexpr Matrix4(float x00, float x01, float x02, float x03, float x10, float x11,
+                          float x12, float x13, float x20, float x21, float x22, float x23,
+                          float x30, float x31, float x32, float x33)
+            : rows_{VectorType(x00, x01, x02, x03), VectorType(x10, x11, x12, x13),
+                    VectorType(x20, x21, x22, x23), VectorType(x30, x31, x32, x33)}
         {
-            USAMI_ASSERT(ilist.size() == 16);
         }
 
-        VectorType& operator[](size_t index) noexcept
+        constexpr VectorType& operator[](size_t index) noexcept
         {
             return rows_[index];
         }
-        const VectorType& operator[](size_t index) const noexcept
+        constexpr const VectorType& operator[](size_t index) const noexcept
         {
             return rows_[index];
         }
 
-        Matrix4 operator*(const Matrix4& other) const noexcept
+        constexpr Matrix4 operator*(const Matrix4& other) const noexcept
         {
             Matrix4 x = other.Transpose();
 
@@ -259,25 +266,25 @@ namespace usami
             return Matrix4{m};
         }
 
-        Matrix4 Then(const Matrix4& other) const noexcept
+        constexpr Matrix4 Then(const Matrix4& other) const noexcept
         {
             return other * (*this);
         }
 
-        VectorType Apply(VectorType v) const noexcept
+        constexpr VectorType Apply(VectorType v) const noexcept
         {
             return {Dot(v, rows_[0]), Dot(v, rows_[1]), Dot(v, rows_[2]), Dot(v, rows_[3])};
         }
-        Vec3f ApplyPoint(Vec3f v) const noexcept
+        constexpr Vec3f ApplyPoint(Vec3f v) const noexcept
         {
             return DowngradeVec(Apply(UpgradeVec(v, 1.f)));
         }
-        Vec3f ApplyVector(Vec3f v) const noexcept
+        constexpr Vec3f ApplyVector(Vec3f v) const noexcept
         {
             return DowngradeVecLinear(Apply(UpgradeVec(v, 0.f)));
         }
 
-        Matrix4 Transpose() const noexcept
+        constexpr Matrix4 Transpose() const noexcept
         {
             // clang-format off
             return Matrix4{
@@ -288,7 +295,7 @@ namespace usami
             };
             // clang-format on
         }
-        Matrix4 Inverse() const noexcept
+        constexpr Matrix4 Inverse() const noexcept
         {
             auto [a, b, c, d] = rows_[0].array;
             auto [e, f, g, h] = rows_[1].array;
@@ -361,7 +368,7 @@ namespace usami
         }
 
     public:
-        static Matrix4 Zero() noexcept
+        static constexpr Matrix4 Zero() noexcept
         {
             // clang-format off
             return Matrix4{
@@ -372,7 +379,7 @@ namespace usami
             };
             // clang-format on
         }
-        static Matrix4 Identity() noexcept
+        static constexpr Matrix4 Identity() noexcept
         {
             // clang-format off
             return Matrix4{
@@ -383,7 +390,7 @@ namespace usami
             };
             // clang-format on
         }
-        static Matrix4 Scale3D(float k) noexcept
+        static constexpr Matrix4 Scale3D(float k) noexcept
         {
             // clang-format off
             return Matrix4{
@@ -394,7 +401,7 @@ namespace usami
             };
             // clang-format on
         }
-        static Matrix4 Scale3D(float kx, float ky, float kz) noexcept
+        static constexpr Matrix4 Scale3D(float kx, float ky, float kz) noexcept
         {
             // clang-format off
             return Matrix4{
@@ -405,14 +412,14 @@ namespace usami
             };
             // clang-format on
         }
-        static Matrix4 Translate3D(Vec3f v) noexcept
+        static constexpr Matrix4 Translate3D(Vec3f v) noexcept
         {
             // clang-format off
             return Matrix4{
-                1.f, 0.f, 0.f, v.x,
-                0.f, 1.f, 0.f, v.y,
-                0.f, 0.f, 1.f, v.z,
-                0.f, 0.f, 0.f, 1.f,
+                1.f, 0.f, 0.f, v.X(),
+                0.f, 1.f, 0.f, v.Y(),
+                0.f, 0.f, 1.f, v.Z(),
+                0.f, 0.f, 0.f, 1.f  ,
             };
             // clang-format on
         }
@@ -473,14 +480,14 @@ namespace usami
             };
             // clang-format on
         }
-        static Matrix4 ChangeBasis3D(Vec3f vx, Vec3f vy, Vec3f vz, Vec3f vp) noexcept
+        static constexpr Matrix4 ChangeBasis3D(Vec3f vx, Vec3f vy, Vec3f vz, Vec3f vp) noexcept
         {
             // clang-format off
             Matrix4 linear_projection = Matrix4{
-                vx.x, vy.x, vz.x, 0,
-                vx.y, vy.y, vz.y, 0,
-                vx.z, vy.z, vz.z, 0,
-                0   , 0   , 0   , 1,
+                vx.X(), vy.X(), vz.X(), 0,
+                vx.Y(), vy.Y(), vz.Y(), 0,
+                vx.Z(), vy.Z(), vz.Z(), 0,
+                0     , 0     , 0     , 1,
             };
             // clang-format on
 
@@ -489,9 +496,9 @@ namespace usami
         static Matrix4 ChangeBasis3D(Vec3f vtheta, Vec3f vp) noexcept
         {
             return Matrix4::Translate3D(-vp)
-                .Then(Matrix4::RotateZ3D(vtheta.z))
-                .Then(Matrix4::RotateY3D(vtheta.y))
-                .Then(Matrix4::RotateX3D(vtheta.x));
+                .Then(Matrix4::RotateZ3D(vtheta.Z()))
+                .Then(Matrix4::RotateY3D(vtheta.Y()))
+                .Then(Matrix4::RotateX3D(vtheta.X()));
         }
-    };
+    }; // namespace usami
 } // namespace usami

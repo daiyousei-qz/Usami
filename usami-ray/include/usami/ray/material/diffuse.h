@@ -4,8 +4,11 @@
 
 namespace usami::ray
 {
-    class DiffuseMaterial : public Material
+    class DiffuseMaterial final : public Material
     {
+    private:
+        Vec3f albedo_;
+
     public:
         DiffuseMaterial(Vec3f albedo) : albedo_(albedo)
         {
@@ -15,8 +18,5 @@ namespace usami::ray
         {
             return workspace.Construct<LambertianReflection>(albedo_);
         }
-
-    private:
-        Vec3f albedo_;
     };
 } // namespace usami::ray

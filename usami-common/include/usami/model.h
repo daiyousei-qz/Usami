@@ -1,5 +1,6 @@
 #pragma once
 #include "usami/texture.h"
+#include "usami/math/math.h"
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -43,8 +44,11 @@ namespace usami
         // usually path of .obj file
         std::string name;
 
+        // NOTE layout: [i](v0, v1, v2) ...
         std::vector<float> vertices;
+        // NOTE layout: [i](n0, n1, n2) ...
         std::vector<float> normals;
+        // NOTE layout: [i](u, v) ...
         std::vector<float> tex_coords;
 
         std::unordered_map<std::string, shared_ptr<Texture2D<Vec3f>>> texture_lookup;

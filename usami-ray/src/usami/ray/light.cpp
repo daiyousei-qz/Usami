@@ -13,7 +13,7 @@ namespace usami::ray
         case LightType::DeltaPoint:
         case LightType::Area:
         {
-            if (!scene.Intersect(GenerateTestRay(isect_obj.point), workspace, isect))
+            if (!scene.IntersectQuick(GenerateTestRay(isect_obj.point), workspace, isect))
             {
                 // no intersection with original primitive
                 return false;
@@ -26,7 +26,7 @@ namespace usami::ray
         case LightType::DeltaDirection:
         case LightType::Infinite:
         {
-            return !scene.Intersect(GenerateShadowRay(isect_obj.point), workspace, isect);
+            return !scene.IntersectQuick(GenerateShadowRay(isect_obj.point), workspace, isect);
         }
 
         default:
