@@ -6,6 +6,7 @@
 #include <numbers>
 #include <cstdint>
 #include <bit>
+#include <limits>
 
 namespace usami
 {
@@ -139,6 +140,8 @@ namespace usami
                     term = term * x * x * (i * 2 + 1) / (i * 2 + 2);
                     result += term / (i * 2 + 3);
                 }
+
+                return result;
             }
 
             constexpr double ExpHelper(double x, double epsilon, int max_iteration)

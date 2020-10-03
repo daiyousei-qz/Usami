@@ -1,6 +1,7 @@
 #pragma once
 #include "usami/common.h"
 #include "usami/ray/ray.h"
+#include "usami/ray/bbox.h"
 #include <type_traits>
 
 namespace usami::ray
@@ -35,6 +36,23 @@ namespace usami::ray
          */
         virtual bool Intersect(const Ray& ray, float t_min, float t_max,
                                IntersectionInfo& isect) const = 0;
+
+        /**
+         * Test intersection from a given ray without need for intersection info
+         *
+         * @return true if an intersection is detected, false otherwise
+         */
+        virtual bool Occlude(const Ray& ray, float t_min, float t_max, float& t_out) const
+        {
+            IntersectionInfo isect;
+            bool success = Intersect(ray, t_min, t_max, isect);
+            if (success)
+            {
+                t_out = isect.t;
+            }
+
+            return success;
+        }
     };
 
     /**
@@ -48,6 +66,11 @@ namespace usami::ray
          * Compute surface area of the primitive
          */
         virtual float Area() const = 0;
+
+        /**
+         * Compute surface area of the primitive
+         */
+        virtual BoundingBox Bounding() const = 0;
 
         /**
          * Sample a point on the primitive's surface from a unit sample

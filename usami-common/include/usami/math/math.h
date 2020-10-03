@@ -2,6 +2,7 @@
 #include "point.h"
 #include "vector.h"
 #include "matrix.h"
+#include "static_math.h"
 #include <cmath>
 #include <algorithm>
 

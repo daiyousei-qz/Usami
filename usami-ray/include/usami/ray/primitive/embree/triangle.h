@@ -28,6 +28,13 @@ namespace usami::ray
             return area_;
         }
 
+        BoundingBox Bounding() const noexcept
+        {
+            Vec3f v1 = v0_ + e1_;
+            Vec3f v2 = v0_ + e2_;
+            return BoundingBox{Min(v0_, Min(v1, v2)), Max(v0_, Max(v1, v2))};
+        }
+
         bool Intersect(const Ray& ray, float t_min, float t_max,
                        IntersectionInfo& info) const override
         {

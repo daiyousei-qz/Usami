@@ -52,15 +52,10 @@ namespace usami
         // clang-format on
     }
 
-    Matrix4 ComputeWorldToScreenTransform(const CameraSetting& camera, Point2i resolution,
-                                          CameraProjectionType proj_type, float z_near, float z_far)
+    Matrix4 ComputeCameraToRasterTransform(const CameraSetting& camera, Point2i resolution,
+                                           CameraProjectionType proj_type, float z_near,
+                                           float z_far)
     {
-        auto [forward, upward, rightward] = ComputeCameraOrientation(camera.lookat, camera.lookup);
-
-        // world-space to camera-space
-        Matrix4 view_transform =
-            Matrix4::ChangeBasis3D(rightward, upward, -forward, camera.position);
-
         // camera-space to normalized device coordinate
         float ky = Tan(camera.fov_y / 2) * z_near;
         float kx = ky * camera.aspect;
@@ -75,12 +70,20 @@ namespace usami
             proj_transform = CreateOrthographicProjection(-kx, kx, ky, -ky, z_near, z_far);
         }
 
-        // normalized device coordinate to screen space
+        // normalized device coordinate to raster space
         Matrix4 screen_transform =
             Matrix4::Scale3D(1, -1, 1)
                 .Then(Matrix4::Translate3D({1, 1, 0}))
                 .Then(Matrix4::Scale3D(resolution[0] * .5f, resolution[1] * .5f, 1));
 
-        return view_transform.Then(proj_transform).Then(screen_transform);
+        return proj_transform.Then(screen_transform);
+    }
+
+    Matrix4 ComputeWorldToRasterTransform(const CameraSetting& camera, Point2i resolution,
+                                          CameraProjectionType proj_type, float z_near, float z_far)
+    {
+        return ComputeWorldToCameraTransform(camera.position,
+                                             ComputeCameraOrientation(camera.lookat, camera.lookup))
+            .Then(ComputeCameraToRasterTransform(camera, resolution, proj_type, z_near, z_far));
     }
 } // namespace usami

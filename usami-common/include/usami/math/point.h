@@ -1,191 +1,62 @@
 #pragma once
 #include <array>
 #include <concepts>
+#include "basic_vector.h"
 
 namespace usami
 {
-    namespace detail
-    {
-
-        template <typename T, size_t N>
-        struct PointBase
-        {
-            std::array<T, N> array;
-
-            constexpr PointBase() : array()
-            {
-            }
-            constexpr PointBase(std::array<T, N> xs) : array(xs)
-            {
-            }
-
-            constexpr PointBase(const PointBase& other) : array(other.array)
-            {
-            }
-            constexpr PointBase& operator=(const PointBase& other)
-            {
-                array = other.array;
-            }
-        };
-
-        template <typename T>
-        struct PointBase<T, 2>
-        {
-            union
-            {
-                std::array<T, 2> array;
-                struct
-                {
-                    T x, y;
-                };
-            };
-
-            constexpr PointBase() : array()
-            {
-            }
-            constexpr PointBase(std::array<T, 2> xs) : array(xs)
-            {
-            }
-
-            constexpr PointBase(const PointBase& other) : array(other.array)
-            {
-            }
-            constexpr PointBase& operator=(const PointBase& other)
-            {
-                array = other.array;
-            }
-        };
-
-        template <typename T>
-        struct PointBase<T, 3>
-        {
-            union
-            {
-                std::array<T, 3> array;
-                struct
-                {
-                    T x, y, z;
-                };
-            };
-
-            constexpr PointBase() : array()
-            {
-            }
-            constexpr PointBase(std::array<T, 3> xs) : array(xs)
-            {
-            }
-
-            constexpr PointBase(const PointBase& other) : array(other.array)
-            {
-            }
-            constexpr PointBase& operator=(const PointBase& other)
-            {
-                array = other.array;
-            }
-        };
-
-        template <typename T>
-        struct PointBase<T, 4>
-        {
-            union
-            {
-                std::array<T, 4> array;
-                struct
-                {
-                    T x, y, z, w;
-                };
-            };
-
-            constexpr PointBase() : array()
-            {
-            }
-            constexpr PointBase(std::array<T, 4> xs) : array(xs)
-            {
-            }
-
-            constexpr PointBase(const PointBase& other) : array(other.array)
-            {
-            }
-            constexpr PointBase& operator=(const PointBase& other)
-            {
-                array = other.array;
-            }
-        };
-    } // namespace detail
-
     template <typename T, size_t N>
-        requires std::integral<T> || std::floating_point<T> struct Point
-        : public detail::PointBase<T, N>
+    struct Point : public detail::VecBase<T, N, false>
     {
         static_assert(N > 0);
 
-        using BaseType = detail::PointBase<T, N>;
-        using ElemType = T;
+        using BaseType = detail::VecBase<T, N, false>;
 
-        static constexpr size_t PointSize = N;
+        using ArrayType   = std::array<T, N>;
+        using ElementType = T;
+
+        static constexpr VecImplConfig config = {
+            .SupportEqualityComparison          = true,
+            .SupportBasicArithmeticOperation    = false,
+            .SupportIntegralArithmeticOperation = false,
+            .SupportBasicNumericOperation       = false,
+            .SupportBasicMathOperation          = false,
+            .SupportDotProduct                  = false,
+            .SupportCrossProduct                = false,
+        };
 
     public:
-        constexpr Point() noexcept
+        constexpr Point()
         {
         }
-        constexpr Point(T value) noexcept
+        constexpr Point(const T& x) : BaseType(x)
         {
-            BaseType::array.fill(value);
         }
-        constexpr Point(const T* p) noexcept
-        {
-            for (int i = 0; i < N; ++i)
-            {
-                BaseType::array[i] = p[i];
-            }
-        }
-        constexpr Point(std::array<T, N> xs) noexcept : BaseType(xs)
+        constexpr Point(BaseType data) : BaseType(data)
         {
         }
 
-        constexpr Point(T x, T y) requires(N == 2)
+        constexpr Point(const T& x, const T& y) requires(N == 2) : BaseType(ArrayType{x, y})
         {
-            BaseType::array[0] = x;
-            BaseType::array[1] = y;
         }
-        constexpr Point(T x, T y, T z) requires(N == 3)
+        constexpr Point(const T& x, const T& y, const T& z) requires(N == 3)
+            : BaseType(ArrayType{x, y, z})
         {
-            BaseType::array[0] = x;
-            BaseType::array[1] = y;
-            BaseType::array[2] = z;
         }
-        constexpr Point(T x, T y, T z, T w) requires(N == 4)
+        constexpr Point(const T& x, const T& y, const T& z, const T& w) requires(N == 4)
+            : BaseType(ArrayType{x, y, z, w})
         {
-            BaseType::array[0] = x;
-            BaseType::array[1] = y;
-            BaseType::array[2] = z;
-            BaseType::array[3] = w;
         }
 
-        constexpr T& operator[](size_t index) noexcept
+        constexpr Point(const float* xs) : BaseType(std::span<const T, N>(xs, N))
         {
-            return BaseType::array[index];
         }
-        constexpr const T& operator[](size_t index) const noexcept
+        constexpr Point(std::array<T, N> xs) : BaseType(xs)
         {
-            return BaseType::array[index];
         }
-
-#define DEFINE_FORWARDED_ITER_FUNCTION(NAME)                                                       \
-    constexpr auto NAME() noexcept                                                                 \
-    {                                                                                              \
-        return BaseType::array.NAME();                                                             \
-    }                                                                                              \
-    constexpr auto NAME() const noexcept                                                           \
-    {                                                                                              \
-        return BaseType::array.NAME();                                                             \
-    }
-
-        DEFINE_FORWARDED_ITER_FUNCTION(begin)
-        DEFINE_FORWARDED_ITER_FUNCTION(end)
-        DEFINE_FORWARDED_ITER_FUNCTION(rbegin)
-        DEFINE_FORWARDED_ITER_FUNCTION(rend)
-#undef DEFINE_FORWARDED_ITER_FUNCTION
+        constexpr Point(std::span<const T, N> xs) : BaseType(xs)
+        {
+        }
     };
 
     template <typename T>
@@ -200,17 +71,6 @@ namespace usami
 
     template <typename T>
     concept PointType = IsPointType<T>::value;
-
-    template <typename T, size_t N>
-    inline constexpr bool operator==(Point<T, N> lhs, Point<T, N> rhs) noexcept
-    {
-        return lhs.array == rhs.array;
-    }
-    template <typename T, size_t N>
-    inline constexpr bool operator!=(Point<T, N> lhs, Point<T, N> rhs) noexcept
-    {
-        return lhs.array != rhs.array;
-    }
 
     using Point2i = Point<int, 2>;
     using Point3i = Point<int, 3>;

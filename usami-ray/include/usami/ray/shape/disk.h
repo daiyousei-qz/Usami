@@ -2,6 +2,7 @@
 #include "usami/math/math.h"
 #include "usami/math/sampling.h"
 #include "usami/ray/ray.h"
+#include "usami/ray/bbox.h"
 
 namespace usami::ray
 {
@@ -17,12 +18,18 @@ namespace usami::ray
     public:
         Disk(Vec3f center, float radius) : center(center), radius(radius)
         {
-            USAMI_REQUIRE(radius > 0);
+            USAMI_ASSERT(radius > 0);
         }
 
         float Area() const noexcept
         {
             return 2.f * kPi * radius;
+        }
+
+        BoundingBox Bounding() const noexcept
+        {
+            Vec3f radius_offset{radius, radius, 0};
+            return BoundingBox{center - radius_offset, center + radius_offset};
         }
 
         bool Intersect(const Ray& ray, float t_min, float t_max,
@@ -34,9 +41,9 @@ namespace usami::ray
                 return false;
             }
 
-            // compute point P that ray hits at plane disk's plane
+            // compute point p that ray hits at plane disk's plane
             float t = (center.z - ray.o.z) / ray.d.z;
-            Vec3f P = ray.o + t * ray.d;
+            Vec3f p = ray.o + t * ray.d;
 
             if (t < t_min || t > t_max)
             {
@@ -44,7 +51,7 @@ namespace usami::ray
             }
 
             // test if hit point is in the circle
-            Vec3f delta   = P - center;
+            Vec3f delta   = p - center;
             float dist_sq = delta.LengthSq();
             if (dist_sq > radius * radius)
             {
@@ -62,10 +69,39 @@ namespace usami::ray
             float v = (radius - Sqrt(dist_sq)) / radius;
 
             isect.t     = t;
-            isect.point = P;
+            isect.point = p;
             isect.ng    = {0, 0, 1};
             isect.ns    = {0, 0, 1};
             isect.uv    = {u, v};
+            return true;
+        }
+
+        bool Occlude(const Ray& ray, float t_min, float t_max, float& t_out) const noexcept
+        {
+            // ray is paralell to the disk
+            if (ray.d.z == 0)
+            {
+                return false;
+            }
+
+            // compute point p that ray hits at plane disk's plane
+            float t = (center.z - ray.o.z) / ray.d.z;
+            Vec3f p = ray.o + t * ray.d;
+
+            if (t < t_min || t > t_max)
+            {
+                return false;
+            }
+
+            // test if hit point is in the circle
+            Vec3f delta   = p - center;
+            float dist_sq = delta.LengthSq();
+            if (dist_sq > radius * radius)
+            {
+                return false;
+            }
+
+            t_out = t;
             return true;
         }
 

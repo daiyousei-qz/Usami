@@ -29,9 +29,9 @@ namespace usami
 
     struct CameraOrientation
     {
-        Vec3f forward;
-        Vec3f upward;
-        Vec3f rightward;
+        Vec3f forward;   // -z
+        Vec3f upward;    //  y
+        Vec3f rightward; //  x
     };
 
     inline CameraOrientation ComputeCameraOrientation(Vec3f lookat, Vec3f lookup)
@@ -44,7 +44,19 @@ namespace usami
         return result;
     }
 
-    Matrix4 ComputeWorldToScreenTransform(const CameraSetting& camera, Point2i resolution,
+    // world to camera
+    inline Matrix4 ComputeWorldToCameraTransform(const Vec3f& position,
+                                                 const CameraOrientation& orientation)
+    {
+        const auto& [forward, upward, rightward] = orientation;
+        return Matrix4::ChangeBasis3D(rightward, upward, -forward, position);
+    }
+
+    Matrix4 ComputeCameraToRasterTransform(const CameraSetting& camera, Point2i resolution,
+                                           CameraProjectionType proj_type, float z_near,
+                                           float z_far);
+
+    Matrix4 ComputeWorldToRasterTransform(const CameraSetting& camera, Point2i resolution,
                                           CameraProjectionType proj_type, float z_near,
                                           float z_far);
 } // namespace usami

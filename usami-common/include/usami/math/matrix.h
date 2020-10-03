@@ -138,6 +138,15 @@ namespace usami
             return Matrix3{inv};
         }
 
+        constexpr std::array<float, 9> ToArray() const noexcept
+        {
+            // clang-format off
+            return { rows_[0][0], rows_[0][1], rows_[0][2], 
+                     rows_[1][0], rows_[1][1], rows_[1][2], 
+                     rows_[2][0], rows_[2][1], rows_[2][2], };
+            // clang-format on
+        }
+
     public:
         static constexpr Matrix3 Zero() noexcept
         {
@@ -365,6 +374,16 @@ namespace usami
             }
 
             return Matrix4{inv};
+        }
+
+        constexpr std::array<float, 16> ToArray() const noexcept
+        {
+            // clang-format off
+            return { rows_[0][0], rows_[0][1], rows_[0][2], rows_[0][3],
+                     rows_[1][0], rows_[1][1], rows_[1][2], rows_[1][3],
+                     rows_[2][0], rows_[2][1], rows_[2][2], rows_[2][3],
+                     rows_[3][0], rows_[3][1], rows_[3][2], rows_[3][3], };
+            // clang-format on
         }
 
     public:

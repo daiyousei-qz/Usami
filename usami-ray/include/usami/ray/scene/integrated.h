@@ -3,6 +3,7 @@
 
 #include "usami/ray/primitive.h"
 #include "usami/ray/primitive/geometric.h"
+#include "usami/ray/composite/bvh.h"
 
 #include "usami/ray/light.h"
 #include "usami/ray/light/point.h"
@@ -18,13 +19,27 @@ namespace usami::ray
     private:
         Arena arena_;
 
-        NaiveComposite world_;
+        std::vector<Primitive*> prims_;
+
+        IntersectableEntity* world_;
 
     public:
+        void Commit() override
+        {
+            auto world = arena_.Construct<BvhComposite>(prims_);
+            // auto world = arena_.Construct<NaiveComposite>();
+            // for (auto prim : prims_)
+            // {
+            //     world->AddPrimitive(prim);
+            // }
+
+            world_ = world;
+        }
+
         bool Intersect(const Ray& ray, Workspace& workspace,
                        IntersectionInfo& isect_out) const override
         {
-            return world_.Intersect(ray, kTravelDistanceMin, kTravelDistanceMax, isect_out);
+            return world_->Intersect(ray, kTravelDistanceMin, kTravelDistanceMax, isect_out);
         }
 
         // primitive factory
@@ -37,7 +52,7 @@ namespace usami::ray
                 arena_.Construct<GeometricPrimitive<ShapeType>>(shape, reverse_orientation);
             object->BindMaterial(move(mat));
 
-            world_.AddPrimitive(object);
+            prims_.push_back(object);
         }
         template <GeometricShape ShapeType>
         void AddGeometricLight(ShapeType shape, SpectrumRGB intensity, bool reverse_orientation)
@@ -47,7 +62,7 @@ namespace usami::ray
             object->BindAreaLight<DiffuseAreaLight>(intensity);
             AddLightSource(object->GetAreaLight());
 
-            world_.AddPrimitive(object);
+            prims_.push_back(object);
         }
 
         void AddPointLight(Vec3f point, SpectrumRGB intensity)

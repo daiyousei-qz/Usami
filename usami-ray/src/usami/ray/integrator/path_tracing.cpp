@@ -47,6 +47,7 @@ namespace usami::ray
             {
                 // as we are not sampling from global light, we should always add this
                 // if (from_camera_or_specular)
+                if (scene.GlobalLight() != nullptr)
                 {
                     result += contrib * scene.GlobalLight()->Eval(ray);
                 }

@@ -34,6 +34,11 @@ namespace usami::ray
             return geometry_.Area();
         }
 
+        BoundingBox Bounding() const override
+        {
+            return geometry_.Bounding();
+        }
+
         bool Intersect(const Ray& ray, float t_min, float t_max,
                        IntersectionInfo& isect) const override
         {
@@ -53,6 +58,11 @@ namespace usami::ray
             }
 
             return hit;
+        }
+
+        bool Occlude(const Ray& ray, float t_min, float t_max, float& t_out) const override
+        {
+            return geometry_.Occlude(ray, t_min, t_max, t_out);
         }
 
         void SamplePoint(const Point2f& u, Vec3f& p_out, Vec3f& n_out,

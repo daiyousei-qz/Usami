@@ -2,6 +2,7 @@
 #include "usami/math/math.h"
 #include "usami/math/sampling.h"
 #include "usami/ray/ray.h"
+#include "usami/ray/bbox.h"
 
 namespace usami::ray
 {
@@ -19,6 +20,11 @@ namespace usami::ray
         float Area() const noexcept
         {
             return 4.f * kPi * radius;
+        }
+
+        BoundingBox Bounding() const noexcept
+        {
+            return BoundingBox{center - radius, center + radius};
         }
 
         bool Intersect(const Ray& ray, float t_min, float t_max,
@@ -75,6 +81,49 @@ namespace usami::ray
             isect.ng    = normal;
             isect.ns    = normal;
             isect.uv    = {u, v};
+            return true;
+        }
+
+        bool Occlude(const Ray& ray, float t_min, float t_max, float& t_out) const noexcept
+        {
+            // ray P(t) = A + t*B
+            // sphere | P - C |^2 = r^2
+            Vec3f A = ray.o;
+            Vec3f B = ray.d;
+            Vec3f C = center;
+            Vec3f D = A - C;
+            float r = radius;
+
+            // equation
+            // |P(t) - C|^2 = |A + t*B - C|^2 = r^2, D = A - C
+            // ...
+            // a*t^2 + b*t + c = 0
+            // a = dot(B, B)
+            // b = 2*dot(B, D)
+            // c = dot(D, D) - r^2
+            float a = Dot(B, B);
+            float b = 2 * Dot(B, D);
+            float c = Dot(D, D) - r * r;
+
+            // no solution
+            float delta_sq = b * b - 4 * a * c;
+            if (delta_sq < 0)
+            {
+                return false;
+            }
+
+            // has solution
+            float delta = Sqrt(delta_sq);
+            float t0    = (-b - delta) / (2 * a);
+            float t1    = (-b + delta) / (2 * a);
+
+            float t = t0 >= 0 ? t0 : t1;
+            if (t < 0 || t < t_min || t > t_max)
+            {
+                return false;
+            }
+
+            t_out = t;
             return true;
         }
 

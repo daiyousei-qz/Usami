@@ -2,6 +2,7 @@
 #include "usami/math/math.h"
 #include "usami/math/sampling.h"
 #include "usami/ray/ray.h"
+#include "usami/ray/bbox.h"
 
 namespace usami::ray
 {
@@ -24,10 +25,26 @@ namespace usami::ray
         }
 
         /**
-         * Test if a ray intersect with the geometric object
+         * Axis-aligned bounding box of the geometric object
+         */
+        BoundingBox Bounding() const noexcept
+        {
+            return {0.f};
+        }
+
+        /**
+         * Test if a ray intersect with the geometric object, fill `IntersectionInfo` if intersected
          */
         bool Intersect(const Ray& ray, float t_min, float t_max,
                        IntersectionInfo& isect) const noexcept
+        {
+            return false;
+        }
+
+        /**
+         * Test if a ray intersect with the geometric object
+         */
+        bool Occlude(const Ray& ray, float t_min, float t_max, float& t_out) const noexcept
         {
             return false;
         }

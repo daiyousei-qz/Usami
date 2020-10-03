@@ -52,7 +52,7 @@ namespace usami::raster
         int res_x = canvas.Width();
         int res_y = canvas.Height();
 
-        Matrix4 world_to_screen = ComputeWorldToScreenTransform(
+        Matrix4 world_to_screen = ComputeWorldToRasterTransform(
             camera, {res_x, res_y}, CameraProjectionType::Perspective, z_near, z_far);
 
         RenderingContext::Initialize(&canvas, world_to_screen);

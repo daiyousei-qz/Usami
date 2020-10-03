@@ -13,7 +13,7 @@ namespace usami::ray
     class Scene : public virtual UsamiObject
     {
     protected:
-        const InfiniteAreaLight* global_light_;
+        const InfiniteAreaLight* global_light_ = nullptr;
 
         std::vector<const Light*> lights_;
         DiscrateDistribution light_distribution_;

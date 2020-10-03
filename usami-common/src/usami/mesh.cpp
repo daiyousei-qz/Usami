@@ -94,14 +94,23 @@ namespace usami
         return buffer;
     }
 
-    shared_ptr<SceneModel> ParseModel(const std::string& filename)
+    shared_ptr<SceneModel> ParseModel(const std::string& filename, bool binary)
     {
         tinygltf::Model gltf_model;
         tinygltf::TinyGLTF loader;
         std::string err;
         std::string warn;
 
-        bool success = loader.LoadASCIIFromFile(&gltf_model, &err, &warn, filename);
+        bool success;
+        if (binary)
+        {
+            success = loader.LoadBinaryFromFile(&gltf_model, &err, &warn, filename);
+        }
+        else
+        {
+            success = loader.LoadASCIIFromFile(&gltf_model, &err, &warn, filename);
+        }
+
         if (!success)
         {
             return nullptr;
@@ -114,7 +123,7 @@ namespace usami
         {
             // TODO: support sampler
             const auto& gltf_img = gltf_model.images.at(gltf_texture.source);
-            USAMI_REQUIRE(!gltf_img.uri.empty());
+            // USAMI_REQUIRE(!gltf_img.uri.empty());
             USAMI_REQUIRE(gltf_img.bits == 8);
             USAMI_REQUIRE(gltf_img.pixel_type == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE);
 
@@ -135,17 +144,17 @@ namespace usami
             };
             if (gltf_material.emissiveTexture.index != -1)
             {
-                // TODO: load texture
+                // TODO: load emissive texture
                 material->emissive_texture = nullptr;
             }
 
             const auto& pbr = gltf_material.pbrMetallicRoughness;
 
+            // TODO: support A channel
             material->base_color_factor = {
                 static_cast<float>(pbr.baseColorFactor[0]),
                 static_cast<float>(pbr.baseColorFactor[1]),
                 static_cast<float>(pbr.baseColorFactor[2]),
-                static_cast<float>(pbr.baseColorFactor[3]),
             };
             if (pbr.baseColorTexture.index != -1)
             {
@@ -181,7 +190,8 @@ namespace usami
                         gltf_accessor, gltf_bufview, gltf_buffer));
 
                 mesh->num_face = gltf_accessor.count;
-                mesh->indices  = SceneDataBufferView<uint32_t>{.buffer = buffer.get(), .offset = 0};
+                mesh->indices =
+                    SceneDataBufferView<uint32_t, 1>{.buffer = buffer.get(), .offset = 0};
             }
 
             // load vertex position

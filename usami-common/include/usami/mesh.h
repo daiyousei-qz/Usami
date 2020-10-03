@@ -25,15 +25,20 @@ namespace usami
         size_t stride; // in bytes
     };
 
-    template <typename T, size_t N = std::dynamic_extent>
+    template <typename T, size_t N>
     struct SceneDataBufferView
     {
         SceneDataBuffer* buffer;
         size_t offset; // in bytes
 
-        const std::byte* PtrAt(size_t index) const
+        const std::byte* PtrAt(size_t index) const noexcept
         {
             return buffer->data.get() + index * buffer->stride + offset;
+        }
+
+        std::span<T, N> CreateView(const std::byte* ptr) const noexcept
+        {
+            return std::span<T, N>{reinterpret_cast<const T*>(ptr), N};
         }
     };
 
@@ -41,10 +46,10 @@ namespace usami
     {
         std::string name;
 
-        std::array<float, 3> emissive_factor;
+        Array3f emissive_factor;
         Texture2D<Vec3f>* emissive_texture;
 
-        std::array<float, 4> base_color_factor;
+        Array3f base_color_factor;
         Texture2D<Vec3f>* base_color_texture;
 
         float matallic_factor;
@@ -58,8 +63,7 @@ namespace usami
         // number of triangles
         size_t num_face;
 
-        size_t index_format;
-        SceneDataBufferView<uint32_t> indices;
+        SceneDataBufferView<uint32_t, 1> indices;
 
         SceneDataBufferView<float, 3> vertices;
         SceneDataBufferView<float, 3> normals;
@@ -77,17 +81,20 @@ namespace usami
             Array3i index_vals;
             for (int i = 0; i < 3; ++i)
             {
-                index_vals[i] = *reinterpret_cast<const uint16_t*>(p_index);
+                index_vals[i] = *reinterpret_cast<const uint32_t*>(p_index);
                 p_index += indices.buffer->stride;
             }
 
             TriangleDesc result;
+
+            // copy vertex positions
             for (int i = 0; i < 3; ++i)
             {
                 memcpy(&result.vertices[i], vertices.PtrAt(index_vals[i]),
                        sizeof(result.vertices[i]));
             }
 
+            // copy normals if any
             if (normals.buffer != nullptr)
             {
                 result.has_normal = true;
@@ -102,6 +109,7 @@ namespace usami
                 result.has_normal = false;
             }
 
+            // copy texture coordinate if any
             if (tex_coords.buffer != nullptr)
             {
                 result.has_tex_coord = true;
@@ -131,14 +139,6 @@ namespace usami
         std::vector<SceneNode*> children;
     };
 
-    // struct SceneLight
-    // {
-    //     std::string name;
-
-    //     std::array<float, 3> color;
-    //     float intensity;
-    // };
-
     struct SceneModel
     {
         std::vector<unique_ptr<Texture2D<Vec3f>>> textures;
@@ -152,6 +152,6 @@ namespace usami
         std::vector<SceneNode*> roots;
     };
 
-    shared_ptr<SceneModel> ParseModel(const std::string& filename);
+    shared_ptr<SceneModel> ParseModel(const std::string& filename, bool binary = false);
 
 } // namespace usami
