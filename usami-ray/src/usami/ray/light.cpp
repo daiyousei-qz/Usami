@@ -19,7 +19,8 @@ namespace usami::ray
                 return false;
             }
 
-            return SamePrimitive(isect_obj.object, isect.object) &&
+            return isect_obj.iface == isect.iface &&
+                   SamePrimitive(isect_obj.object, isect.object) &&
                    (isect.point - isect_obj.point).LengthSq() < 0.001f;
         }
 

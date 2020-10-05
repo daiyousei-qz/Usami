@@ -1,1 +1,0 @@
-#include "usami/ray/composite/bvh.h"

@@ -35,7 +35,7 @@ namespace usami::ray
             return BoundingBox{Min(v0_, Min(v1, v2)), Max(v0_, Max(v1, v2))};
         }
 
-        bool Intersect(const Ray& ray, float t_min, float t_max,
+        bool Intersect(const Ray& ray, float t_min, float t_max, Workspace& ws,
                        IntersectionInfo& info) const override
         {
             // we don't need to implement this as this won't be called

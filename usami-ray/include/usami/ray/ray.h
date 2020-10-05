@@ -19,7 +19,14 @@ namespace usami::ray
         return Ray{src, (dest - src).Normalize()};
     }
 
-    struct IntersectionInfo
+    struct OcclusionInfo final
+    {
+        float t;
+
+        const Primitive* primitive;
+    };
+
+    struct IntersectionInfo final
     {
         // distance that ray travels to make the hit
         float t;
@@ -36,8 +43,8 @@ namespace usami::ray
         // uv coordianate at the hit point for texture mapping
         Vec2f uv = {0.f, 0.f};
 
-        // triangle index for embree scene
-        unsigned index = 0;
+        // index of polygon face hit in a mesh
+        unsigned iface = 0;
 
         // object that the ray hits
         const Primitive* object = nullptr;
@@ -48,4 +55,8 @@ namespace usami::ray
         // area light instance at the hit surface, if any
         const AreaLight* area_light = nullptr;
     };
+
+    template <typename T>
+    concept IntersectionTestOutputType =
+        std::same_as<T, OcclusionInfo> || std::same_as<T, IntersectionInfo>;
 } // namespace usami::ray

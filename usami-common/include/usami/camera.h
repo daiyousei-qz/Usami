@@ -52,6 +52,15 @@ namespace usami
         return Matrix4::ChangeBasis3D(rightward, upward, -forward, position);
     }
 
+    inline Matrix4 ComputeCameraToWorldTransform(const Vec3f& position,
+                                                 const CameraOrientation& orientation)
+    {
+        const auto& [forward, upward, rightward] = orientation;
+        return Matrix4{UpgradeVec(rightward, 0.f), UpgradeVec(upward, 0.f),
+                       UpgradeVec(-forward, 0.f), UpgradeVec(position, 1.f)}
+            .Transpose();
+    }
+
     Matrix4 ComputeCameraToRasterTransform(const CameraSetting& camera, Point2i resolution,
                                            CameraProjectionType proj_type, float z_near,
                                            float z_far);

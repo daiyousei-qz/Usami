@@ -16,7 +16,7 @@ namespace usami
     static Matrix4 CreateOrthographicProjection(float l, float r, float t, float b, float n,
                                                 float f)
     {
-        USAMI_ASSERT(n >= 0 && f > n && l != r && t != b);
+        USAMI_ASSERT(n > 0 && f > n && l != r && t != b);
         // clang-format off
         return Matrix4{
             2/(r-l), 0      , 0      , (l+r)/(l-r),
@@ -40,7 +40,7 @@ namespace usami
     // l'/f = l/n, r'/f = r/n, t'/f = t/n, b'/f = b/n
     static Matrix4 CreatePerspectiveProjection(float l, float r, float t, float b, float n, float f)
     {
-        USAMI_ASSERT(n >= 0 && f > n && l != r && t != b);
+        USAMI_ASSERT(n > 0 && f > n && l != r && t != b);
         // TODO: NOTE precision issue on far/near
         // clang-format off
         return Matrix4{

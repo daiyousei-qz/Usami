@@ -57,6 +57,10 @@ namespace usami
         constexpr Matrix3()
         {
         }
+        constexpr Matrix3(const VectorType& v0, const VectorType& v1, const VectorType& v2)
+            : rows_{v0, v1, v2}
+        {
+        }
         constexpr Matrix3(std::span<const float, 9> xs)
             : rows_{VectorType(xs.subspan<0, 3>()), VectorType(xs.subspan<3, 3>()),
                     VectorType(xs.subspan<6, 3>())}
@@ -66,6 +70,16 @@ namespace usami
                           float x20, float x21, float x22)
             : rows_{VectorType(x00, x01, x02), VectorType(x10, x11, x12), VectorType(x20, x21, x22)}
         {
+        }
+
+        bool HasScaling() const noexcept
+        {
+            auto has_scaling_axis = [this](const Vec2f& v) {
+                float delta_len = ApplyVector(v).Length() - 1;
+                return delta_len > 1e-7 && delta_len < 1e-7;
+            };
+
+            return has_scaling_axis({0, 1}) && has_scaling_axis({1, 0});
         }
 
         constexpr VectorType& operator[](size_t index) noexcept
@@ -101,6 +115,14 @@ namespace usami
         constexpr VectorType Apply(VectorType v) const noexcept
         {
             return {Dot(v, rows_[0]), Dot(v, rows_[1]), Dot(v, rows_[2])};
+        }
+        constexpr Vec2f ApplyPoint(Vec2f v) const noexcept
+        {
+            return DowngradeVec(Apply(UpgradeVec(v, 1.f)));
+        }
+        constexpr Vec2f ApplyVector(Vec2f v) const noexcept
+        {
+            return DowngradeVecLinear(Apply(UpgradeVec(v, 0.f)));
         }
 
         constexpr Matrix3 Transpose() const noexcept
@@ -237,6 +259,11 @@ namespace usami
         constexpr Matrix4()
         {
         }
+        constexpr Matrix4(const VectorType& v0, const VectorType& v1, const VectorType& v2,
+                          const VectorType& v3)
+            : rows_{v0, v1, v2, v3}
+        {
+        }
         constexpr Matrix4(std::span<const float, 16> xs)
             : rows_{VectorType(xs.subspan<0, 4>()), VectorType(xs.subspan<4, 4>()),
                     VectorType(xs.subspan<8, 4>()), VectorType(xs.subspan<12, 4>())}
@@ -248,6 +275,17 @@ namespace usami
             : rows_{VectorType(x00, x01, x02, x03), VectorType(x10, x11, x12, x13),
                     VectorType(x20, x21, x22, x23), VectorType(x30, x31, x32, x33)}
         {
+        }
+
+        bool HasScaling() const noexcept
+        {
+            auto has_scaling_axis = [this](const Vec3f& v) {
+                float delta_len = ApplyVector(v).Length() - 1;
+                return delta_len > 1e-7 && delta_len < 1e-7;
+            };
+
+            return has_scaling_axis({0, 0, 1}) && has_scaling_axis({0, 1, 0}) &&
+                   has_scaling_axis({1, 0, 0});
         }
 
         constexpr VectorType& operator[](size_t index) noexcept

@@ -39,7 +39,7 @@ namespace usami::ray
             return geometry_.Bounding();
         }
 
-        bool Intersect(const Ray& ray, float t_min, float t_max,
+        bool Intersect(const Ray& ray, float t_min, float t_max, Workspace& ws,
                        IntersectionInfo& isect) const override
         {
             bool hit = geometry_.Intersect(ray, t_min, t_max, isect);
@@ -60,9 +60,18 @@ namespace usami::ray
             return hit;
         }
 
-        bool Occlude(const Ray& ray, float t_min, float t_max, float& t_out) const override
+        bool Intersect(const Ray& ray, float t_min, float t_max, Workspace& ws,
+                       OcclusionInfo& occ_out) const override
         {
-            return geometry_.Occlude(ray, t_min, t_max, t_out);
+            float t;
+            if (geometry_.Occlude(ray, t_min, t_max, t))
+            {
+                occ_out.t         = t;
+                occ_out.primitive = this;
+                return true;
+            }
+
+            return false;
         }
 
         void SamplePoint(const Point2f& u, Vec3f& p_out, Vec3f& n_out,

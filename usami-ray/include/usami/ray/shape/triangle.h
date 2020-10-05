@@ -4,7 +4,7 @@
 #include "usami/ray/ray.h"
 #include "usami/ray/bbox.h"
 
-namespace usami::ray
+namespace usami::ray::shape
 {
     struct Triangle
     {
@@ -115,4 +115,4 @@ namespace usami::ray
             pdf_out = 1.f * .5f * len_inv;
         }
     };
-} // namespace usami::ray
+} // namespace usami::ray::shape

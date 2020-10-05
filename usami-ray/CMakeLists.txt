@@ -1,9 +1,9 @@
 
 add_library(usami-ray STATIC)
 
-file(GLOB_RECURSE USAMI_RAY_HEADERS "include/usami/ray/*.h")
-file(GLOB_RECURSE USAMI_RAY_INTERNAL_HEADERS "src/usami/ray/*.h")
-file(GLOB_RECURSE USAMI_RAY_SOURCES "src/usami/ray/*.cpp")
+file(GLOB_RECURSE USAMI_RAY_HEADERS "include/*.h")
+file(GLOB_RECURSE USAMI_RAY_INTERNAL_HEADERS "src/*.h")
+file(GLOB_RECURSE USAMI_RAY_SOURCES "src/*.cpp")
 target_sources(usami-ray
     PUBLIC ${USAMI_RAY_HEADERS}
     PRIVATE ${USAMI_RAY_INTERNAL_HEADERS} ${USAMI_RAY_SOURCES})

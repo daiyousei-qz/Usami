@@ -10,20 +10,21 @@ namespace usami::ray
     template <typename T>
     concept GeometricShape = requires(T shape)
     {
-        {
-            &T::Area
-        }
-        ->std::same_as<float (T::*)() const noexcept>;
+        true;
+        // {
+        //     &T::Area
+        // }
+        // ->std::same_as<float (T::*)() const noexcept>;
 
-        {
-            &T::Intersect
-        }
-        ->std::same_as<bool (T::*)(const Ray&, float, float, IntersectionInfo&) const noexcept>;
+        // {
+        //     &T::Intersect
+        // }
+        // ->std::same_as<bool (T::*)(const Ray&, float, float, IntersectionInfo&) const noexcept>;
 
-        {
-            &T::SamplePoint
-        }
-        ->std::same_as<void (T::*)(const Point2f&, Vec3f&, Vec3f&, float&) const noexcept>;
+        // {
+        //     &T::SamplePoint
+        // }
+        // ->std::same_as<void (T::*)(const Point2f&, Vec3f&, Vec3f&, float&) const noexcept>;
     };
 
     class IntersectableEntity : public virtual UsamiObject
@@ -34,21 +35,23 @@ namespace usami::ray
          *
          * @return true if an intersection is detected, false otherwise
          */
-        virtual bool Intersect(const Ray& ray, float t_min, float t_max,
-                               IntersectionInfo& isect) const = 0;
+        virtual bool Intersect(const Ray& ray, float t_min, float t_max, Workspace& ws,
+                               IntersectionInfo& isect_out) const = 0;
 
         /**
          * Test intersection from a given ray without need for intersection info
          *
          * @return true if an intersection is detected, false otherwise
          */
-        virtual bool Occlude(const Ray& ray, float t_min, float t_max, float& t_out) const
+        virtual bool Intersect(const Ray& ray, float t_min, float t_max, Workspace& ws,
+                               OcclusionInfo& occ_out) const
         {
             IntersectionInfo isect;
-            bool success = Intersect(ray, t_min, t_max, isect);
+            bool success = Intersect(ray, t_min, t_max, ws, isect);
             if (success)
             {
-                t_out = isect.t;
+                occ_out.t         = isect.t;
+                occ_out.primitive = isect.object;
             }
 
             return success;
@@ -98,7 +101,7 @@ namespace usami::ray
             objects_.push_back(body);
         }
 
-        bool Intersect(const Ray& ray, float t_min, float t_max,
+        bool Intersect(const Ray& ray, float t_min, float t_max, Workspace& ws,
                        IntersectionInfo& isect) const override
         {
             bool any_hit = false;
@@ -107,7 +110,7 @@ namespace usami::ray
             IntersectionInfo isect_buf;
             for (auto child : objects_)
             {
-                if (child->Intersect(ray, t_min, t, isect_buf))
+                if (child->Intersect(ray, t_min, t, ws, isect_buf))
                 {
                     any_hit = true;
                     t       = isect_buf.t;

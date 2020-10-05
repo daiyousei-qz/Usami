@@ -4,7 +4,7 @@
 #include "usami/ray/ray.h"
 #include "usami/ray/bbox.h"
 
-namespace usami::ray
+namespace usami::ray::shape
 {
     struct Sphere
     {

@@ -24,6 +24,9 @@ namespace usami
                           const tinygltf::BufferView& gltf_bufview,
                           const tinygltf::Buffer& gltf_buffer)
     {
+        size_t src_byte_stride =
+            gltf_bufview.byteStride != 0 ? gltf_bufview.byteStride : sizeof(TSrc);
+
         // allocate buffer
         unique_ptr<SceneDataBuffer> buffer = make_unique<SceneDataBuffer>();
 
@@ -40,7 +43,7 @@ namespace usami
         const std::byte* p_src = src_buffer + gltf_bufview.byteOffset;
         std::byte* p_dst       = buffer->data.get();
 
-        for (int i = 0; i < cell_size; ++i)
+        for (int i = 0; i < cell_count; ++i)
         {
             const TSrc* p_src_typed = reinterpret_cast<const TSrc*>(p_src);
             TDst* p_dst_typed       = reinterpret_cast<TDst*>(p_dst);
@@ -49,7 +52,7 @@ namespace usami
             {
                 p_dst_typed[j] = p_src_typed[j];
             }
-            p_src += gltf_bufview.byteStride;
+            p_src += src_byte_stride;
             p_dst += cell_size;
         }
 
@@ -61,6 +64,8 @@ namespace usami
                                                            const tinygltf::BufferView& gltf_bufview,
                                                            const tinygltf::Buffer& gltf_buffer)
     {
+        size_t src_byte_stride = gltf_bufview.byteStride != 0 ? gltf_bufview.byteStride : sizeof(T);
+
         // allocate buffer
         unique_ptr<SceneDataBuffer> buffer = make_unique<SceneDataBuffer>();
 
@@ -74,19 +79,19 @@ namespace usami
         // copy data
         const std::byte* src_buffer = reinterpret_cast<const std::byte*>(gltf_buffer.data.data());
 
-        const std::byte* p_src = src_buffer + gltf_bufview.byteOffset;
+        const std::byte* p_src = src_buffer + gltf_bufview.byteOffset + gltf_accessor.byteOffset;
         std::byte* p_dst       = buffer->data.get();
 
-        if (gltf_accessor.byteOffset == 0 && cell_size == gltf_bufview.byteStride)
+        if (cell_size == gltf_bufview.byteStride)
         {
             memcpy(p_dst, p_src, buffer->size);
         }
         else
         {
-            for (int i = 0; i < cell_size; ++i)
+            for (int i = 0; i < cell_count; ++i)
             {
                 memcpy(p_dst, p_src, cell_size);
-                p_src += gltf_bufview.byteStride;
+                p_src += src_byte_stride;
                 p_dst += cell_size;
             }
         }
@@ -189,7 +194,8 @@ namespace usami
                     result->buffers.emplace_back(AssignConstructBuffer<uint32_t, uint16_t, 1>(
                         gltf_accessor, gltf_bufview, gltf_buffer));
 
-                mesh->num_face = gltf_accessor.count;
+                USAMI_ASSERT(gltf_accessor.count % 3 == 0);
+                mesh->num_face = gltf_accessor.count / 3;
                 mesh->indices =
                     SceneDataBufferView<uint32_t, 1>{.buffer = buffer.get(), .offset = 0};
             }

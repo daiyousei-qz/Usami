@@ -4,7 +4,7 @@
 #include "usami/ray/ray.h"
 #include "usami/ray/bbox.h"
 
-namespace usami::ray
+namespace usami::ray::shape
 {
     /**
      * An empty shape that doesn't exist in the space
@@ -60,4 +60,4 @@ namespace usami::ray
             pdf_out = 0.f;
         }
     };
-} // namespace usami::ray
+} // namespace usami::ray::shape

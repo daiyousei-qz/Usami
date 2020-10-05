@@ -3,6 +3,7 @@
 
 #include "usami/ray/primitive.h"
 #include "usami/ray/primitive/geometric.h"
+#include "usami/ray/primitive/mesh.h"
 #include "usami/ray/composite/bvh.h"
 
 #include "usami/ray/light.h"
@@ -26,7 +27,8 @@ namespace usami::ray
     public:
         void Commit() override
         {
-            auto world = arena_.Construct<BvhComposite>(prims_);
+            auto world =
+                arena_.Construct<BvhComposite>(BvhComposite::PrimitiveCollectionType{prims_});
             // auto world = arena_.Construct<NaiveComposite>();
             // for (auto prim : prims_)
             // {
@@ -39,7 +41,8 @@ namespace usami::ray
         bool Intersect(const Ray& ray, Workspace& workspace,
                        IntersectionInfo& isect_out) const override
         {
-            return world_->Intersect(ray, kTravelDistanceMin, kTravelDistanceMax, isect_out);
+            return world_->Intersect(ray, kTravelDistanceMin, kTravelDistanceMax, workspace,
+                                     isect_out);
         }
 
         // primitive factory
@@ -53,6 +56,13 @@ namespace usami::ray
             object->BindMaterial(move(mat));
 
             prims_.push_back(object);
+        }
+        void AddMeshPrimitive(SceneMesh* mesh, shared_ptr<Material> mat,
+                              const Matrix4& model_to_world)
+        {
+            auto primitive = arena_.Construct<MeshPrimitive>(mesh, model_to_world);
+
+            prims_.push_back(primitive);
         }
         template <GeometricShape ShapeType>
         void AddGeometricLight(ShapeType shape, SpectrumRGB intensity, bool reverse_orientation)

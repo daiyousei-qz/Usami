@@ -8,6 +8,11 @@
 
 namespace usami
 {
+    struct TriangleVertexDesc
+    {
+        std::array<Array3f, 3> vertices;
+    };
+
     struct TriangleDesc
     {
         std::array<Array3f, 3> vertices;
@@ -70,6 +75,32 @@ namespace usami
         SceneDataBufferView<float, 2> tex_coords;
 
         SceneMaterial* material;
+
+        TriangleVertexDesc GetTriangleVertices(size_t iface) const
+        {
+            const std::byte* p_index = indices.PtrAt(3 * iface);
+            // USAMI_ASSERT((p_index - indices.offset + 3 * indices.buffer->stride) -
+            //                  indices.buffer->data.get() <
+            //              indices.buffer->size);
+
+            Array3i index_vals;
+            for (int i = 0; i < 3; ++i)
+            {
+                index_vals[i] = *reinterpret_cast<const uint32_t*>(p_index);
+                p_index += indices.buffer->stride;
+            }
+
+            TriangleVertexDesc result;
+
+            // copy vertex positions
+            for (int i = 0; i < 3; ++i)
+            {
+                memcpy(&result.vertices[i], vertices.PtrAt(index_vals[i]),
+                       sizeof(result.vertices[i]));
+            }
+
+            return result;
+        }
 
         TriangleDesc GetTriangle(size_t iface) const
         {
