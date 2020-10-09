@@ -45,7 +45,7 @@ namespace usami::ray
             bool hit = geometry_.Intersect(ray, t_min, t_max, isect);
             if (hit)
             {
-                isect.object     = this;
+                isect.primitive  = this;
                 isect.area_light = GetAreaLight();
                 isect.material   = GetMaterial();
 

@@ -105,9 +105,9 @@ namespace usami
         TriangleDesc GetTriangle(size_t iface) const
         {
             const std::byte* p_index = indices.PtrAt(iface);
-            USAMI_ASSERT((p_index - indices.offset + 3 * indices.buffer->stride) -
-                             indices.buffer->data.get() <
-                         indices.buffer->size);
+            // USAMI_ASSERT((p_index - indices.offset + 3 * indices.buffer->stride) -
+            //                  indices.buffer->data.get() <
+            //              indices.buffer->size);
 
             Array3i index_vals;
             for (int i = 0; i < 3; ++i)

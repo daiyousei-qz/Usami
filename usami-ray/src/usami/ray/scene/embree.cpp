@@ -145,7 +145,7 @@ namespace usami::ray
         }
 
         isect.iface      = prim_id;
-        isect.object     = InstantiateTemporaryPrimitive(workspace, geom_id, prim_id, tri_desc);
+        isect.primitive  = InstantiateTemporaryPrimitive(workspace, geom_id, prim_id, tri_desc);
         isect.area_light = geometry->GetAreaLight(prim_id);
         isect.material   = geometry->GetMaterial();
 

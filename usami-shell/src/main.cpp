@@ -46,8 +46,13 @@ unique_ptr<IntegratedScene> LoadScene()
     }
 
     // scene->AddGeometricPrimitive(Sphere{Vec3f{0, 0, 1}, 1}, mat_sphere);
+    // scene->AddMeshPrimitive(model___->meshes[0].get(), nullptr,
+    //                         Matrix4::RotateY3D(.5f).Then(Matrix4::RotateZ3D(.5f)));
     scene->AddMeshPrimitive(model___->meshes[0].get(), nullptr,
-                            Matrix4::RotateY3D(.5f).Then(Matrix4::RotateZ3D(.5f)));
+                            Matrix4::Matrix4::Scale3D(.01f)
+                                //.Then(Matrix4::RotateZ3D(1.f))
+                                .Then(Matrix4::RotateY3D(1.5f))
+                                .Then(Matrix4::Translate3D({0, -1, 1})));
     scene->AddGeometricPrimitive(shape::Rect{Vec3f{0, 0, -1}, 10, 10}, mat_ground);
     scene->AddGeometricLight(shape::Rect{Vec3f{0, 0, 3}, 1, 1}, {1, 1, 1}, true);
     scene->AddInfiniteAreaLight(tex_skybox, 1.f, 0.f, 1e5);
@@ -88,7 +93,7 @@ int main()
         .aspect   = 4.f / 3.f,
     };
 
-    auto scene = LoadScene();
+    auto scene = LoadEmbreeScene();
 
     Canvas canvas{resolution.x, resolution.y};
     PerspectiveCamera camera{camera_setting, resolution};

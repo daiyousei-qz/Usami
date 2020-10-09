@@ -47,7 +47,7 @@ namespace usami::ray
         unsigned iface = 0;
 
         // object that the ray hits
-        const Primitive* object = nullptr;
+        const Primitive* primitive = nullptr;
 
         // material at the hit surface
         const Material* material = nullptr;

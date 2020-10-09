@@ -26,10 +26,10 @@ namespace usami::raster
         float render_width  = static_cast<float>(width_);
         float render_height = static_cast<float>(height_);
 
-        float min_x = clamp(ceil(min({p0.x, p1.x, p2.x})), 0.f, render_width - 1);
-        float min_y = clamp(ceil(min({p0.y, p1.y, p2.y})), 0.f, render_height - 1);
-        float max_x = clamp(floor(max({p0.x, p1.x, p2.x})), 0.f, render_width - 1);
-        float max_y = clamp(floor(max({p0.y, p1.y, p2.y})), 0.f, render_height - 1);
+        float min_x = Clamp(Ceil(min({p0.x, p1.x, p2.x})), 0.f, render_width - 1);
+        float min_y = Clamp(Ceil(min({p0.y, p1.y, p2.y})), 0.f, render_height - 1);
+        float max_x = Clamp(Floor(max({p0.x, p1.x, p2.x})), 0.f, render_width - 1);
+        float max_y = Clamp(Floor(max({p0.y, p1.y, p2.y})), 0.f, render_height - 1);
 
         Vec3f left_top_uv     = to_st_space.Apply({min_x, min_y, 1.f});
         auto [dsdx, dtdx, _1] = to_st_space.Apply({1.f, 0.f, 0.f}).array;

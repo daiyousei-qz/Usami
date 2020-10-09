@@ -62,8 +62,8 @@ namespace usami::ray
 
                 static shared_ptr<Material> mat_sphere =
                     make_shared<DiffuseMaterial>(Vec3f{.2f, .5f, .2f});
-                isect_out.object   = this;
-                isect_out.material = mat_sphere.get();
+                isect_out.primitive = this;
+                isect_out.material  = mat_sphere.get();
             }
 
             return success;

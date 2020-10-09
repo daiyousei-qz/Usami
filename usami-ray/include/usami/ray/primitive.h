@@ -51,7 +51,7 @@ namespace usami::ray
             if (success)
             {
                 occ_out.t         = isect.t;
-                occ_out.primitive = isect.object;
+                occ_out.primitive = isect.primitive;
             }
 
             return success;
