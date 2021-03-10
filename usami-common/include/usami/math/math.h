@@ -1,23 +1,15 @@
 #pragma once
+#include "math_def.h"
 #include "point.h"
 #include "vector.h"
 #include "matrix.h"
 #include "static_math.h"
 #include <cmath>
 #include <algorithm>
+#include <numbers>
 
 namespace usami
 {
-    constexpr float kFloatEpsilon = 1e-7;
-
-    constexpr float kPi       = 3.1415926535f;
-    constexpr float kInvPi    = 1.f / kPi;
-    constexpr float kTwoPi    = 2.f * kPi;
-    constexpr float kInvTwoPi = 1.f / kTwoPi;
-
-    constexpr float kAreaUnitSphere     = 4.f * kPi;
-    constexpr float kAreaUnitHemisphere = 2.f * kPi;
-
     using Array2i = std::array<int, 2>;
     using Array3i = std::array<int, 3>;
     using Array4i = std::array<int, 4>;
@@ -25,43 +17,49 @@ namespace usami
     using Array3f = std::array<float, 3>;
     using Array4f = std::array<float, 4>;
 
-    inline constexpr float AreaUnitCone(float cos_theta) noexcept
-    {
-        return 2.f * kPi * (1 - cos_theta);
-    }
-
-    template <typename T>
-    concept ScalarType = std::integral<T> || std::floating_point<T>;
-
-    template <typename T>
-    concept FloatScalarType = std::floating_point<T>;
-
-    template <typename T>
-    concept LinearArithmeticType = ScalarType<T> || VecType<T>;
-
-    template <typename T>
-    concept FloatLinearArithmeticType = FloatScalarType<T> || VecType<T>;
-
     template <ScalarType T>
     inline T Abs(T x)
     {
-        return std::abs(x);
+        return x >= 0 ? x : -x;
     }
+
     template <ScalarType T>
     inline T Min(T x, T y)
     {
-        return std::min(x, y);
+        return x < y ? x : y;
     }
+    template <ScalarType T>
+    inline T Min(std::initializer_list<T> xs)
+    {
+        return std::min(xs);
+    }
+
     template <ScalarType T>
     inline T Max(T x, T y)
     {
-        return std::max(x, y);
+        return x > y ? x : y;
     }
+    template <ScalarType T>
+    inline T Max(std::initializer_list<T> xs)
+    {
+        return std::max(xs);
+    }
+
     template <ScalarType T>
     inline T Clamp(T x, T min, T max)
     {
-        return std::clamp(x, min, max);
+        if (x < min)
+        {
+            return min;
+        }
+        if (x > max)
+        {
+            return max;
+        }
+
+        return x;
     }
+
     template <FloatScalarType T>
     inline T Ceil(T x)
     {
@@ -104,9 +102,9 @@ namespace usami
     }
 
     template <FloatScalarType T>
-    inline T Log(T x)
+    inline T Ln(T x)
     {
-        return std::log10(x);
+        return std::log(x);
     }
 
     template <FloatScalarType T>
@@ -121,7 +119,7 @@ namespace usami
         return std::log10(x);
     }
 
-    template <FloatLinearArithmeticType T>
+    template <FloatScalarType T>
     inline T Lerp(T a, T b, T t)
     {
         return a + t * (b - a);

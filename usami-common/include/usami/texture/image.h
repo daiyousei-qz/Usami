@@ -79,13 +79,15 @@ namespace usami
             return height_;
         }
 
-        Vec3f Eval(Vec2f tex_coord, Vec2f differential_x, Vec2f differential_y) override
+        Vec3f Eval(const TexCoordType& coord, const TexDifferentialType& differential) override
         {
-            size_t level = mipmap_.NumLevels() - 1 +
-                           Log2(Max(differential_x.Length(), differential_y.Length()));
-            level = Clamp<size_t>(level, 0, mipmap_.NumLevels() - 1);
+            const Vec2f& duvdx = differential[0];
+            const Vec2f& duvdy = differential[1];
 
-            return mipmap_.SampleNearest(0, tex_coord[0], tex_coord[1]);
+            size_t level = mipmap_.NumLevels() - 1 + Log2(Max(duvdx.Length(), duvdy.Length()));
+            level        = Clamp<size_t>(level, 0, mipmap_.NumLevels() - 1);
+
+            return mipmap_.SampleNearest(0, coord[0], coord[1]);
         }
     };
 } // namespace usami

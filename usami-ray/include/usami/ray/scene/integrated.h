@@ -4,6 +4,7 @@
 #include "usami/ray/primitive.h"
 #include "usami/ray/primitive/geometric.h"
 #include "usami/ray/primitive/mesh.h"
+#include "usami/ray/composite/naive.h"
 #include "usami/ray/composite/bvh.h"
 
 #include "usami/ray/light.h"
@@ -27,13 +28,13 @@ namespace usami::ray
     public:
         void Commit() override
         {
-            auto world =
-                arena_.Construct<BvhComposite>(BvhComposite::PrimitiveCollectionType{prims_});
-            // auto world = arena_.Construct<NaiveComposite>();
-            // for (auto prim : prims_)
-            // {
-            //     world->AddPrimitive(prim);
-            // }
+            // auto world =
+            //     arena_.Construct<BvhComposite>(BvhComposite::PrimitiveCollectionType{prims_});
+            auto world = arena_.Construct<NaiveComposite>();
+            for (auto prim : prims_)
+            {
+                world->AddPrimitive(prim);
+            }
 
             world_ = world;
         }
@@ -51,17 +52,19 @@ namespace usami::ray
         void AddGeometricPrimitive(ShapeType shape, shared_ptr<Material> mat,
                                    bool reverse_orientation = false)
         {
-            auto object =
+            auto primitive =
                 arena_.Construct<GeometricPrimitive<ShapeType>>(shape, reverse_orientation);
-            object->BindMaterial(move(mat));
+            primitive->BindMaterial(move(mat));
 
-            prims_.push_back(object);
+            primitive->SetName("ground");
+            prims_.push_back(primitive);
         }
         void AddMeshPrimitive(SceneMesh* mesh, shared_ptr<Material> mat,
                               const Matrix4& model_to_world)
         {
             auto primitive = arena_.Construct<MeshPrimitive>(mesh, model_to_world);
 
+            primitive->SetName("mesh");
             prims_.push_back(primitive);
         }
         template <GeometricShape ShapeType>

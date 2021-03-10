@@ -42,19 +42,21 @@ namespace usami::ray
         bool Intersect(const Ray& ray, float t_min, float t_max, Workspace& ws,
                        IntersectionInfo& isect) const override
         {
-            bool hit = geometry_.Intersect(ray, t_min, t_max, isect);
+
+            bool hit = TestIntersection(geometry_, ray, t_min, t_max, isect);
             if (hit)
             {
-                isect.primitive  = this;
-                isect.area_light = GetAreaLight();
-                isect.material   = GetMaterial();
-
                 if (reverse_orientation_)
                 {
-                    isect.ns = -isect.ns;
                     isect.ng = -isect.ng;
                     isect.uv = 1.f - isect.uv;
                 }
+
+                isect.iface      = 0;
+                isect.ns         = isect.ng;
+                isect.primitive  = this;
+                isect.area_light = GetAreaLight();
+                isect.material   = GetMaterial();
             }
 
             return hit;
@@ -64,7 +66,7 @@ namespace usami::ray
                        OcclusionInfo& occ_out) const override
         {
             float t;
-            if (geometry_.Occlude(ray, t_min, t_max, t))
+            if (TestOcclusion(geometry_, ray, t_min, t_max, t))
             {
                 occ_out.t         = t;
                 occ_out.primitive = this;

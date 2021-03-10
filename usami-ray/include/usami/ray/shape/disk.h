@@ -32,8 +32,9 @@ namespace usami::ray::shape
             return BoundingBox{center - radius_offset, center + radius_offset};
         }
 
-        bool Intersect(const Ray& ray, float t_min, float t_max,
-                       IntersectionInfo& isect) const noexcept
+        template <bool ComputeGeometryInfo>
+        bool IntersectTest(const Ray& ray, float t_min, float t_max, float* t_out, Vec3f* p_out,
+                           Vec3f* n_out, Vec2f* uv_out) const
         {
             // ray is paralell to the disk
             if (ray.d.z == 0)
@@ -58,50 +59,25 @@ namespace usami::ray::shape
                 return false;
             }
 
-            // compute uv
-            float phi = std::atan2(delta[1], delta[0]);
-            if (phi < 0)
+            *t_out = t;
+
+            if constexpr (ComputeGeometryInfo)
             {
-                phi += kTwoPi;
+                // compute uv
+                float phi = std::atan2(delta[1], delta[0]);
+                if (phi < 0)
+                {
+                    phi += kTwoPi;
+                }
+
+                float u = phi / kTwoPi;
+                float v = (radius - Sqrt(dist_sq)) / radius;
+
+                *p_out  = p;
+                *n_out  = {0, 0, 1};
+                *uv_out = {u, v};
             }
 
-            float u = phi / kTwoPi;
-            float v = (radius - Sqrt(dist_sq)) / radius;
-
-            isect.t     = t;
-            isect.point = p;
-            isect.ng    = {0, 0, 1};
-            isect.ns    = {0, 0, 1};
-            isect.uv    = {u, v};
-            return true;
-        }
-
-        bool Occlude(const Ray& ray, float t_min, float t_max, float& t_out) const noexcept
-        {
-            // ray is paralell to the disk
-            if (ray.d.z == 0)
-            {
-                return false;
-            }
-
-            // compute point p that ray hits at plane disk's plane
-            float t = (center.z - ray.o.z) / ray.d.z;
-            Vec3f p = ray.o + t * ray.d;
-
-            if (t < t_min || t > t_max)
-            {
-                return false;
-            }
-
-            // test if hit point is in the circle
-            Vec3f delta   = p - center;
-            float dist_sq = delta.LengthSq();
-            if (dist_sq > radius * radius)
-            {
-                return false;
-            }
-
-            t_out = t;
             return true;
         }
 
@@ -115,4 +91,4 @@ namespace usami::ray::shape
     };
 
     // NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Disk, center, radius)
-} // namespace usami::ray
+} // namespace usami::ray::shape

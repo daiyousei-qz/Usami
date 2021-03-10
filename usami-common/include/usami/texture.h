@@ -12,7 +12,7 @@ namespace usami
     /**
      * Resolve uv coordinate into range [0, 1]
      */
-    template <TextureWrapMode AddressMode = TextureWrapMode::Repeat, LinearArithmeticType T>
+    template <typename T, TextureWrapMode AddressMode = TextureWrapMode::Repeat>
     inline T ResolveUV(T x) noexcept
     {
         if constexpr (AddressMode == TextureWrapMode::Repeat)
@@ -33,13 +33,20 @@ namespace usami
     class BasicTexture
     {
     public:
-        using TexCoordType  = Vec<float, Dimension>;
-        using TexSampleType = T;
+        using TexCoordType        = Vec<float, Dimension>;
+        using TexSampleType       = T;
+        using TexDifferentialType = std::array<TexCoordType, Dimension>;
 
         virtual ~BasicTexture() = default;
 
-        virtual TexSampleType Eval(TexCoordType tex_coord, TexCoordType differential_x,
-                                   TexCoordType differential_y) = 0;
+        virtual TexSampleType Eval(const TexCoordType& coord,
+                                   const TexDifferentialType& differential) = 0;
+
+        TexSampleType Eval(const TexCoordType& coord)
+        {
+            // TODO: determine a good default
+            return Eval(coord, {});
+        }
     };
 
     template <typename T>

@@ -58,7 +58,7 @@ namespace usami::ray
             {
                 isect_out.point = ray.o + isect_out.t * ray.d;
                 isect_out.ng    = model_to_world_.ApplyVector(isect_out.ng).Normalize();
-                isect_out.ns    = model_to_world_.ApplyVector(isect_out.ns).Normalize();
+                isect_out.ns    = isect_out.ng;
 
                 static shared_ptr<Material> mat_sphere =
                     make_shared<DiffuseMaterial>(Vec3f{.2f, .5f, .2f});

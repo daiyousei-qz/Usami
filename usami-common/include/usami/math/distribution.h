@@ -23,7 +23,7 @@ namespace usami
 
             for (int i = 1; i < thresholds_.size(); ++i)
             {
-                if (u >= thresholds_[i - 1] && u < thresholds_[i])
+                if (u < thresholds_[i])
                 {
                     pdf_out = thresholds_[i] - thresholds_[i - 1];
                     return i;
@@ -38,25 +38,28 @@ namespace usami
         void Reset(const float* weight_begin, const float* weight_end)
         {
             thresholds_.clear();
-            thresholds_.reserve(std::distance(weight_begin, weight_end));
+
+            int num_output = std::distance(weight_begin, weight_end);
+            if (num_output <= 0)
+            {
+                thresholds_ = {1.f};
+                return;
+            }
+
+            thresholds_.reserve(num_output);
 
             float acc = 0;
-            for (auto p = weight_begin; p != weight_end; ++p)
+            for (const float* p = weight_begin; p != weight_end; ++p)
             {
+                USAMI_ASSERT(*p > 0);
+
                 acc += *p;
                 thresholds_.push_back(acc);
             }
 
-            if (acc != 0)
+            for (float& x : thresholds_)
             {
-                for (auto& x : thresholds_)
-                {
-                    x /= acc;
-                }
-            }
-            else
-            {
-                thresholds_.push_back(1.f);
+                x /= acc;
             }
         }
 

@@ -8,6 +8,9 @@ namespace usami::ray
     // Schlick Fresnel Approximation
     struct Fresnel
     {
+    private:
+        SpectrumRGB f0_;
+
     public:
         Fresnel(float etaI, float etaT)
         {
@@ -29,14 +32,14 @@ namespace usami::ray
             auto pow5 = [](float x) { return x * x * x * x * x; };
             return f0_ + (1.f - f0_) * pow5(1 - cos_theta_i);
         }
-
-    private:
-        SpectrumRGB f0_;
     };
 
     // GGX Microfacet Distribution
     struct MicrofacetDistribution
     {
+    private:
+        float alpha_;
+
     public:
         MicrofacetDistribution(float roughness) : alpha_(roughness * roughness)
         {
@@ -87,14 +90,17 @@ namespace usami::ray
         {
             return D(wh) * AbsCosTheta(wh);
         }
-
-    private:
-        float alpha_;
     };
 
     // Cook Torrance
     class MicrofacetReflection : public Bsdf
     {
+    private:
+        SpectrumRGB albedo_;
+
+        Fresnel* fresnel_;
+        MicrofacetDistribution* microfacet_;
+
     public:
         MicrofacetReflection(SpectrumRGB albedo, Fresnel* fresnel,
                              MicrofacetDistribution* microfacet)
@@ -161,11 +167,5 @@ namespace usami::ray
 
             return pdf;
         }
-
-    private:
-        SpectrumRGB albedo_;
-
-        Fresnel* fresnel_;
-        MicrofacetDistribution* microfacet_;
     };
 } // namespace usami::ray

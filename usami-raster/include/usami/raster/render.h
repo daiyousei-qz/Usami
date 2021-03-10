@@ -2,7 +2,7 @@
 #include "usami/camera.h"
 #include "usami/raster/canvas.h"
 #include "usami/raster/context.h"
-#include "usami/raster/scene.h"
+#include "usami/mesh.h"
 #include <functional>
 
 namespace usami::raster
@@ -13,23 +13,24 @@ namespace usami::raster
         auto& vshader = RenderingContext::Current().GetVertexShader();
         auto& fshader = RenderingContext::Current().GetFregmentShader();
 
-        RenderingContext::Current().PushModelTransform(node.Transform());
+        RenderingContext::Current().PushModelTransform(node.transform);
 
-        if (node.Object() != nullptr)
+        if (node.mesh != nullptr)
         {
-            const auto& object = *node.Object();
-            for (int iface = 0; iface < object.GetFaceNum(); ++iface)
+            const auto& mesh = *node.mesh;
+            for (int iface = 0; iface < mesh.num_face; ++iface)
             {
-                Vertex v[3];
-                Vec3f p[3] = {object.GetVertex(iface, 0), object.GetVertex(iface, 1),
-                              object.GetVertex(iface, 2)};
+                TriangleDesc tri = mesh.GetTriangle(iface);
 
+                Vec3f p[3] = {Vec3f{tri.vertices[0]}, Vec3f{tri.vertices[1]},
+                              Vec3f{tri.vertices[2]}};
+
+                Vertex v[3];
                 for (int ivertex = 0; ivertex < 3; ++ivertex)
                 {
-                    Vec3f normal = object.HasNormal() ? object.GetNormal(iface, ivertex)
-                                                      : Cross(p[1] - p[0], p[2] - p[0]).Normalize();
-                    Vec2f tex_coord =
-                        object.HasTexCoord() ? object.GetTexCoord(iface, ivertex) : 0.f;
+                    Vec3f normal = tri.has_normal ? Vec3f{tri.normals[ivertex]}
+                                                  : Cross(p[1] - p[0], p[2] - p[0]).Normalize();
+                    Vec2f tex_coord = tri.has_tex_coord ? Vec2f{tri.tex_coords[ivertex]} : 0.f;
 
                     v[ivertex] = vshader.Run(p[ivertex], normal, tex_coord);
                 }
@@ -38,7 +39,7 @@ namespace usami::raster
             }
         }
 
-        for (const auto& child : node.Children())
+        for (const auto& child : node.children)
         {
             RenderSceneNode(*child);
         }

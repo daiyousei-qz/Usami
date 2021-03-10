@@ -76,6 +76,8 @@ namespace usami::ray
         }
     };
 
+    // collection specialized for mesh triangles
+    // TODO: reorder triangle buffer for cache locality!!!
     class MeshPrimitiveCollection
     {
     private:
@@ -101,7 +103,8 @@ namespace usami::ray
             {
                 int iface         = faces_[prim_offset + i];
                 auto [v0, v1, v2] = mesh_->GetTriangleVertices(iface).vertices;
-                if (shape::Triangle{v0, v1, v2}.Intersect(ray, t_min, t_hit, isect_out))
+
+                if (TestIntersection(shape::Triangle{v0, v1, v2}, ray, t_min, t_hit, isect_out))
                 {
                     hit   = true;
                     t_hit = isect_out.t;
@@ -175,6 +178,8 @@ namespace usami::ray
         static_assert(sizeof(LinearBvhNode) == 32);
 
         PrimitiveCollection prims_;
+
+        // seialized binary tree for bvh
         std::vector<LinearBvhNode> bvh_nodes_;
 
     public:

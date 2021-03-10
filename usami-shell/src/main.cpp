@@ -35,27 +35,29 @@ unique_ptr<IntegratedScene> LoadScene()
             return Vec3f{.6f, .6f, .8f} * Pow(uv[1], 1.5f);
         });
 
-    for (int yy = -6; yy <= 6; yy += 2)
-    {
-        for (int xx = 0; xx <= 4; xx += 2)
-        {
-            // scene->AddGeometricPrimitive(
-            //     shape::Sphere{Vec3f{static_cast<float>(xx), static_cast<float>(yy), 0}, .6f},
-            //     mat_sphere);
-        }
-    }
+    // for (int yy = -6; yy <= 6; yy += 2)
+    // {
+    //     for (int xx = 0; xx <= 4; xx += 2)
+    //     {
+    //         scene->AddGeometricPrimitive(
+    //             shape::Sphere{Vec3f{static_cast<float>(xx), static_cast<float>(yy), 0}, .6f},
+    //             mat_sphere);
+    //     }
+    // }
 
     // scene->AddGeometricPrimitive(Sphere{Vec3f{0, 0, 1}, 1}, mat_sphere);
-    // scene->AddMeshPrimitive(model___->meshes[0].get(), nullptr,
-    //                         Matrix4::RotateY3D(.5f).Then(Matrix4::RotateZ3D(.5f)));
     scene->AddMeshPrimitive(model___->meshes[0].get(), nullptr,
-                            Matrix4::Matrix4::Scale3D(.01f)
-                                //.Then(Matrix4::RotateZ3D(1.f))
-                                .Then(Matrix4::RotateY3D(1.5f))
-                                .Then(Matrix4::Translate3D({0, -1, 1})));
-    scene->AddGeometricPrimitive(shape::Rect{Vec3f{0, 0, -1}, 10, 10}, mat_ground);
+                            Matrix4::RotateY3D(.5f)
+                                .Then(Matrix4::RotateZ3D(.5f))
+                                .Then(Matrix4::Translate3D({0, 0, 1.f})));
+    // scene->AddMeshPrimitive(model___->meshes[0].get(), nullptr,
+    //                         Matrix4::Matrix4::Scale3D(.002f)
+    //                             .Then(Matrix4::RotateZ3D(-kPi / 6))
+    //                             .Then(Matrix4::RotateY3D(1.5f))
+    //                             .Then(Matrix4::Translate3D({-7, 0, 1})));
+    scene->AddGeometricPrimitive(shape::Rect{Vec3f{0, 0, 0}, 10, 10}, mat_ground);
     scene->AddGeometricLight(shape::Rect{Vec3f{0, 0, 3}, 1, 1}, {1, 1, 1}, true);
-    scene->AddInfiniteAreaLight(tex_skybox, 1.f, 0.f, 1e5);
+    // scene->AddInfiniteAreaLight(tex_skybox, 1.f, 0.f, 1e5);
 
     scene->Commit();
     return scene;
@@ -82,18 +84,18 @@ int main()
 {
     using namespace usami;
 
-    int num_sample     = 4;
+    int num_sample     = 100;
     Point2i resolution = {400, 300};
 
     CameraSetting camera_setting = {
-        .position = {-5, 0, 1},
+        .position = {-8, 0, 1},
         .lookat   = {1, 0, 0},
         .lookup   = {0, 0, 1},
         .fov_y    = kPi / 4,
         .aspect   = 4.f / 3.f,
     };
 
-    auto scene = LoadEmbreeScene();
+    auto scene = LoadScene();
 
     Canvas canvas{resolution.x, resolution.y};
     PerspectiveCamera camera{camera_setting, resolution};

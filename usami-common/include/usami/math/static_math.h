@@ -2,47 +2,50 @@
 // Don't use this in runtime, performance would be slow!!!
 
 #pragma once
-#include <concepts>
+#include "math_def.h"
 #include <numbers>
 #include <cstdint>
 #include <bit>
 #include <limits>
+#include <concepts>
 
 namespace usami
 {
     namespace static_math
     {
-        template <typename T>
-            constexpr T Abs(T x) requires std::integral<T> || std::floating_point<T>
+        template <ScalarType T>
+        constexpr inline T Abs(T x)
         {
             return x > 0 ? x : -x;
         }
 
         template <typename T>
-            constexpr T Min(T x, T y) requires std::integral<T> || std::floating_point<T>
+        constexpr inline T Min(T x, T y)
         {
             return x < y ? x : y;
         }
 
         template <typename T>
-            constexpr T Max(T x, T y) requires std::integral<T> || std::floating_point<T>
+        constexpr inline T Max(T x, T y)
         {
             return x < y ? y : x;
         }
 
         template <typename T>
-            constexpr T Clamp(T x, T min, T max) requires std::integral<T> || std::floating_point<T>
+        constexpr inline T Clamp(T x, T min, T max)
         {
             return Min(Max(x, min), max);
         }
 
         namespace detail
         {
-            constexpr int kStaticMathDefaultMaxIteration = 20;
+            constexpr inline int kStaticMathDefaultMaxIteration = 20;
 
-            constexpr double TruncHelper(double x)
+            constexpr inline double TruncHelper(double x)
             {
-                uint64_t bits = std::bit_cast<int64_t, double>(x);
+                static_assert(sizeof(double) == sizeof(uint64_t));
+
+                uint64_t bits = std::bit_cast<uint64_t, double>(x);
 
                 uint64_t sign     = bits >> 63;
                 uint64_t exponent = bits >> 52 & 0x7ff;
@@ -64,30 +67,30 @@ namespace usami
                 }
             }
 
-            constexpr double FloorHelper(double x)
+            constexpr inline double FloorHelper(double x)
             {
                 auto t = TruncHelper(x);
                 return t - (x < 0 && x != t);
             }
 
-            constexpr double CeilHelper(double x)
+            constexpr inline double CeilHelper(double x)
             {
                 auto t = TruncHelper(x);
                 return t + (x > 0 && x != t);
             }
 
-            constexpr double RoundHelper(double x)
+            constexpr inline double RoundHelper(double x)
             {
                 auto r = x - FloorHelper(x);
                 return FloorHelper(x) + (x > 0 && r >= 0.5) + (x < 0 && r > 0.5);
             }
 
-            constexpr double ModHelper(double x, double y)
+            constexpr inline double ModHelper(double x, double y)
             {
                 return x - FloorHelper(x / y) * y;
             }
 
-            constexpr double SqrtHelper(double x, double epsilon, int max_iteration)
+            constexpr inline double SqrtHelper(double x, double epsilon, int max_iteration)
             {
                 double term  = x;
                 double delta = Max(x, 1.);
@@ -101,7 +104,7 @@ namespace usami
                 return term;
             }
 
-            constexpr double SinHelper(double x, double epsilon, int max_iteration)
+            constexpr inline double SinHelper(double x, double epsilon, int max_iteration)
             {
                 x = ModHelper(x, std::numbers::pi * 2);
 
@@ -116,7 +119,7 @@ namespace usami
                 return result;
             }
 
-            constexpr double CosHelper(double x, double epsilon, int max_iteration)
+            constexpr inline double CosHelper(double x, double epsilon, int max_iteration)
             {
                 x = ModHelper(x, std::numbers::pi * 2);
 
@@ -131,7 +134,7 @@ namespace usami
                 return result;
             }
 
-            constexpr double ASinHelper(double x, double epsilon, int max_iteration)
+            constexpr inline double ASinHelper(double x, double epsilon, int max_iteration)
             {
                 double result = x;
                 double term   = x;
@@ -144,7 +147,7 @@ namespace usami
                 return result;
             }
 
-            constexpr double ExpHelper(double x, double epsilon, int max_iteration)
+            constexpr inline double ExpHelper(double x, double epsilon, int max_iteration)
             {
                 double result = 1 + x;
                 double term   = x;
@@ -157,7 +160,7 @@ namespace usami
                 return result;
             }
 
-            constexpr double LnHelper(double x, double epsilon, int max_iteration)
+            constexpr inline double LnHelper(double x, double epsilon, int max_iteration)
             {
                 double term  = 1;
                 double delta = std::numeric_limits<double>::max();
@@ -174,84 +177,84 @@ namespace usami
         } // namespace detail
 
         template <std::floating_point T>
-        T Trunc(T x)
+        constexpr inline T Trunc(T x)
         {
             return static_cast<T>(detail::TruncHelper(static_cast<double>(x)));
         }
 
         template <std::floating_point T>
-        T Floor(T x)
+        constexpr inline T Floor(T x)
         {
             return static_cast<T>(detail::FloorHelper(static_cast<double>(x)));
         }
 
         template <std::floating_point T>
-        T Ceil(T x)
+        constexpr inline T Ceil(T x)
         {
             return static_cast<T>(detail::CeilHelper(static_cast<double>(x)));
         }
 
         template <std::floating_point T>
-        T Round(T x)
+        constexpr inline T Round(T x)
         {
             return static_cast<T>(detail::RoundHelper(static_cast<double>(x)));
         }
 
         template <std::floating_point T>
-        T Sqrt(T x)
+        constexpr inline T Sqrt(T x)
         {
             return static_cast<T>(detail::SqrtHelper(x, std::numeric_limits<T>::epsilon(),
                                                      detail::kStaticMathDefaultMaxIteration));
         }
 
         template <std::floating_point T>
-        T Sin(T x)
+        constexpr inline T Sin(T x)
         {
             return static_cast<T>(detail::SinHelper(x, std::numeric_limits<T>::epsilon(),
                                                     detail::kStaticMathDefaultMaxIteration));
         }
 
         template <std::floating_point T>
-        T Cos(T x)
+        constexpr inline T Cos(T x)
         {
             return static_cast<T>(detail::CosHelper(x, std::numeric_limits<T>::epsilon(),
                                                     detail::kStaticMathDefaultMaxIteration));
         }
 
         template <std::floating_point T>
-        T Tan(T x)
+        constexpr inline T Tan(T x)
         {
             return static_cast<T>(Sin<double>(x) / Cos<double>(x));
         }
 
         template <std::floating_point T>
-        T Exp(T x)
+        constexpr inline T Exp(T x)
         {
             return static_cast<T>(detail::ExpHelper(x, std::numeric_limits<T>::epsilon(),
                                                     detail::kStaticMathDefaultMaxIteration));
         }
 
         template <std::floating_point T>
-        T Log(T x)
+        constexpr inline T Log(T x)
         {
             return static_cast<T>(detail::LnHelper(x, std::numeric_limits<T>::epsilon(),
                                                    detail::kStaticMathDefaultMaxIteration));
         }
 
         template <std::floating_point T>
-        T Pow(T x, T y)
+        constexpr inline T Pow(T x, T y)
         {
             return static_cast<float>(Exp<double>(y * Log<double>(x)));
         }
 
         template <std::floating_point T>
-        T Log2(T x)
+        constexpr inline T Log2(T x)
         {
             return static_cast<T>(Log<double>(x) / std::numbers::ln2);
         }
 
         template <std::floating_point T>
-        T Log10(T x)
+        constexpr inline T Log10(T x)
         {
             return static_cast<T>(Log<double>(x) / std::numbers::ln10);
         }

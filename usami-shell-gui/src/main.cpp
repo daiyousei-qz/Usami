@@ -43,20 +43,11 @@ Vec3f RotatePivot = {0.f, 1.f, 0.f};
 float RotateTheta = 0;
 float Scale       = 1.f;
 
-static std::shared_ptr<MeshDesc> model;
-static std::shared_ptr<SceneGraph> scene;
+static std::shared_ptr<SceneModel> model;
 
 void LoadScene()
 {
-    model = LoadModel("d:/demo/scene/bunny2/bunny2.obj");
-    // model = LoadModel("d:/demo/scene/cube/cube.obj");
-    scene = make_shared<SceneGraph>(make_shared<SceneNode>(
-        nullptr, Matrix4::Rotate3D(RotatePivot, RotateTheta) * Matrix4::Scale3D(Scale)));
-    for (int i = 0; i < model->geometries.size(); ++i)
-    {
-        scene->Root().AddChild(std::make_shared<SceneNode>(std::make_shared<SceneObject>(model, i),
-                                                           Matrix4::Scale3D(.003f)));
-    }
+    model = ParseModel("d:/models/duck/Duck.gltf");
 
     camera.position = {0, 0, -3};
     z_near          = 1e-2f;
@@ -88,9 +79,9 @@ public:
         rotate_transform =
             rotate_transform.Then(Matrix4::Rotate3D(RotatePivot, RotateTheta * timespan_s));
 
-        scene->Root().SetTransform(rotate_transform * Matrix4::Scale3D(Scale));
-        canvas.Clear(1.f);
-        raster::Render(canvas, camera, z_near, z_far, [] { RenderSceneNode(scene->Root()); });
+        // scene->Root().SetTransform(rotate_transform * Matrix4::Scale3D(Scale));
+        // canvas.Clear(1.f);
+        // raster::Render(canvas, camera, z_near, z_far, [] { RenderSceneNode(scene->Root()); });
 
         auto pcanvas = canvas.Buffer().Data();
         auto pimg    = img_data.Data();

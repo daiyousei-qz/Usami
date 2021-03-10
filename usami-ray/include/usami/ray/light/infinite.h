@@ -34,7 +34,7 @@ namespace usami::ray
             }
 
             // TODO: deal with duvdx and duvdy
-            return intensity_ * tex_->Eval({u, v}, 0.f, 0.f);
+            return intensity_ * tex_->Eval({u, v});
         }
 
         SpectrumRGB Eval(const Ray& ray) const override

@@ -32,8 +32,9 @@ namespace usami::ray::shape
             return BoundingBox{p_minxy, p_minxy + Vec3f{len_x, len_y, 0}};
         }
 
-        bool Intersect(const Ray& ray, float t_min, float t_max,
-                       IntersectionInfo& isect) const noexcept
+        template <bool ComputeGeometryInfo>
+        bool IntersectTest(const Ray& ray, float t_min, float t_max, float* t_out, Vec3f* p_out,
+                           Vec3f* n_out, Vec2f* uv_out) const
         {
             // ray is paralell to the rect
             if (ray.d.z == 0)
@@ -57,39 +58,15 @@ namespace usami::ray::shape
                 return false;
             }
 
-            isect.t     = t;
-            isect.point = p;
-            isect.ng    = {0, 0, 1};
-            isect.ns    = {0, 0, 1};
-            isect.uv    = {delta[0] / len_x, delta[1] / len_y};
-            return true;
-        }
+            *t_out = t;
 
-        bool Occlude(const Ray& ray, float t_min, float t_max, float& t_out) const noexcept
-        {
-            // ray is paralell to the rect
-            if (ray.d.z == 0)
+            if constexpr (ComputeGeometryInfo)
             {
-                return false;
+                *p_out  = p;
+                *n_out  = {0, 0, 1};
+                *uv_out = {delta[0] / len_x, delta[1] / len_y};
             }
 
-            // compute point p that ray hits at plane rect's plane
-            float t = (p_minxy.z - ray.o.z) / ray.d.z;
-            Vec3f p = ray.o + t * ray.d;
-
-            if (t < t_min || t > t_max)
-            {
-                return false;
-            }
-
-            // test if hit point is in the rectangle
-            Vec3f delta = p - p_minxy;
-            if (delta[0] < 0 || delta[0] > len_x || delta[1] < 0 || delta[1] > len_y)
-            {
-                return false;
-            }
-
-            t_out = t;
             return true;
         }
 
@@ -103,4 +80,4 @@ namespace usami::ray::shape
     };
 
     // NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Rect, center, len_x, len_y)
-} // namespace usami::ray
+} // namespace usami::ray::shape

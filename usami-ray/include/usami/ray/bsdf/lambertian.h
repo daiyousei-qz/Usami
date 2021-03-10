@@ -17,6 +17,11 @@ namespace usami::ray
 
         SpectrumRGB Eval(const Vec3f& wo, const Vec3f& wi) const noexcept override
         {
+            if (!SameHemisphere(wo, wi))
+            {
+                return 0.f;
+            }
+
             return albedo_ / kPi;
         }
 

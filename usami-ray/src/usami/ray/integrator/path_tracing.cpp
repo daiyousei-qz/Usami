@@ -1,3 +1,5 @@
+#include "usami/ray/ray.h"
+#include "usami/ray/primitive.h"
 #include "usami/ray/integrator/path_tracing.h"
 #include "usami/ray/light.h"
 #include "usami/ray/material.h"

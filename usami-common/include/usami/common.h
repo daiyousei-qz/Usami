@@ -37,6 +37,12 @@ namespace usami
     {
         fmt::print(fmt, args...);
     }
+
+    template <typename TFmt, typename... TArgs>
+    void Debug(const TFmt& fmt, const TArgs&... args)
+    {
+        fmt::print(fmt, args...);
+    }
 } // namespace usami
 
 #define USAMI_DISABLE_COPY(KLASS)

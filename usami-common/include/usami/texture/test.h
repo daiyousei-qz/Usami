@@ -14,9 +14,9 @@ namespace usami
         {
         }
 
-        Vec3f Eval(Vec2f tex_coord, Vec2f duvdx, Vec2f duvdy) override
+        Vec3f Eval(const TexCoordType& coord, const TexDifferentialType& differential) override
         {
-            return f_(tex_coord, duvdx, duvdy);
+            return f_(coord, differential[0], differential[1]);
         }
     };
 } // namespace usami

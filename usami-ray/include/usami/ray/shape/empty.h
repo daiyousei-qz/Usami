@@ -33,18 +33,13 @@ namespace usami::ray::shape
         }
 
         /**
-         * Test if a ray intersect with the geometric object, fill `IntersectionInfo` if intersected
+         * Test if a ray intersect with the geometric object.
+         * If ComputeGeometryInfo, all output parameters will be set on intersection.
+         * Otherwise, only t_out is set.
          */
-        bool Intersect(const Ray& ray, float t_min, float t_max,
-                       IntersectionInfo& isect) const noexcept
-        {
-            return false;
-        }
-
-        /**
-         * Test if a ray intersect with the geometric object
-         */
-        bool Occlude(const Ray& ray, float t_min, float t_max, float& t_out) const noexcept
+        template <bool ComputeGeometryInfo>
+        bool IntersectTest(const Ray& ray, float t_min, float t_max, float* t_out, Vec3f* p_out,
+                           Vec3f* n_out, Vec2f* uv_out) const
         {
             return false;
         }

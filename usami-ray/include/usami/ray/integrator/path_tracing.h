@@ -5,6 +5,10 @@ namespace usami::ray
 {
     class PathTracingIntegrator : public Integrator
     {
+    private:
+        int min_bounce_;
+        int max_bounce_;
+
     public:
         PathTracingIntegrator(int min_bounce = 2, int max_bounce = 6)
             : min_bounce_(min_bounce), max_bounce_(max_bounce)
@@ -14,9 +18,5 @@ namespace usami::ray
 
         SpectrumRGB Li(RenderingContext& ctx, Sampler& sampler, const Scene& scene,
                        const Ray& camera_ray) const override;
-
-    private:
-        int min_bounce_;
-        int max_bounce_;
     };
 } // namespace usami::ray

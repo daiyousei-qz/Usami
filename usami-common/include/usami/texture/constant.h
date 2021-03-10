@@ -14,8 +14,7 @@ namespace usami
         {
         }
 
-        T Eval(Vec<float, Dimension> tex_coord, Vec<float, Dimension> differential_x,
-               Vec<float, Dimension> differential_y) override
+        T Eval(const TexCoordType& coord, const TexDifferentialType& differential) override
         {
             return value_;
         }

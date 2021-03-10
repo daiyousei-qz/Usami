@@ -4,6 +4,14 @@
 // facilities to map unit sampling to various dimensions
 namespace usami
 {
+    constexpr float kAreaUnitSphere     = 4.f * kPi;
+    constexpr float kAreaUnitHemisphere = 2.f * kPi;
+
+    inline constexpr float AreaUnitCone(float cos_theta) noexcept
+    {
+        return 2.f * kPi * (1 - cos_theta);
+    }
+
     /**
      * Samples a point on unit hemisphere
      *
